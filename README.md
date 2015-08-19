@@ -3,10 +3,10 @@ A Hacker News/Reddit alike app for the Benjels!!!!
 
 ## Installation
 
-Git clone this repo
-run npm install
-run bower install
-run nodemon.js
+- Git clone this repo
+- run npm install
+- run bower install
+- run nodemon.js
 
 *dont forget to start your mongodb
 
