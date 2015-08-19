@@ -1,0 +1,14 @@
+include ./partials/header.jade
+
+.container
+	.clearfix
+		.col.sm-col-6
+			h2 Submit a story
+			p Post a link or comment to start a discussion.
+			form(method="post" action="/news")
+				label.bold Title of your post:
+				input(type="text" name="title" placeholder="Everything needs a title").block.sm-col-12.field.mt2.mb2
+				label.bold Enter a link or comment:
+				input(type="text" name="link" placeholder="http://www.benjels.com").block.sm-col-12.field.mt2
+				textarea(name="comments" class="textarea-comment" placeholder="Be thoughtful.").block.sm-col-12.field.mt2.mb2
+				button(type="submit").btn.btn-primary Post

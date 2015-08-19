@@ -1,0 +1,20 @@
+{
+  "name": "hackernews",
+  "main": "index.js",
+  "version": "0.0.0",
+  "authors": [
+    "chensteven <shchensteven@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "basscss": "~7.0.3",
+    "bootstrap": "~3.3.5"
+  }
+}
