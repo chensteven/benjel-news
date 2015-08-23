@@ -9,7 +9,9 @@ Note: I have excluded node_modules and bower_components so run your own npm inst
 - run bower install
 - run nodemon.js
 
+*might need to run sudo if you don't have permission configured properly
 *dont forget to start your mongodb
+
 
 ## Upcoming features
 
@@ -19,6 +21,7 @@ Note: this is still very basic and crappy. there are lots of work inc.
 - Include Server form validation
 - Incude Browser form validation
 - Inclde Test cases
+
 ### Dev List
 - need a grunt or gulp
 - need less or sass
