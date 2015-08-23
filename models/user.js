@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var ObjectId = Schema.Types.ObjectId;
 
 var userSchema = new Schema({
 	username: {
@@ -21,7 +22,11 @@ var userSchema = new Schema({
 		type: String,
 		trim: true,
 		lowercase: true
-	}
+	},
+	stories: [{
+		type: ObjectId,
+		ref: 'Story'
+	}]
 });
 
 module.exports = mongoose.model('User', userSchema);

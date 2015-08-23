@@ -3,30 +3,39 @@ include ./partials/header.jade
 .container
 	.clearfix
 		.col.sm-col-6
-			if data
+			if story
 				h2 Top Stories
-				each object in data
-					div.border.p5
-						div
-							h3
-								a(href="//"+object.link)= object.title
-						div 
-							span Posted 
-							=object.timeAgo
-							span  by 
-							=object.author
-						div.comments
-							h4 
-								a(class="link-add" href="/news/"+object._id) Comments
-							each val in object.comments
-								p=val.content
-								p Posted by 
-									span=val.author
-									span  on 
-									span=val.timeAgo
-				div.mt3
-					textarea(class="comment-textarea" name="comment-textarea", cols="50", rows="10")
-					button(name="comment-submit" class="comment-submit").btn.btn-primary Add a Comment
+				div.border.p5
+					div
+						h3
+							a(href="//"+story.link)= story.title
+					div 
+						span Posted 
+						=story.timeAgo
+						span  by 
+							a(href="/profile/"+story.author._id)
+								span=story.author.username
+					div.comments
+						h4 
+							a(class="link-add" href="/news/"+story._id)
+								=story.commentsLength 
+								span  Comments
+						each val in comments
+							p=val.content
+							p Posted by 
+								a(href="/profile/"+val.author._id)
+									span=val.author.username
+								span  on 
+								span=val.timeAgo
+				if isAuthenticated
+					div.mt3
+						form(method="post" action="#{formAction}")
+							textarea(class="comment-textarea" name="comments", cols="50", rows="10")
+							button(name="comment-submit" class="comment-submit").btn.btn-primary Add a Comment
+				else
+					div.mt3
+						p You need to login to comment.
+							a(href="/login")  Login here
 
 			else
 				h2 Form Data

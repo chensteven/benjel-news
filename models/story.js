@@ -1,17 +1,12 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var ObjectId = Schema.Types.ObjectId;
 
-var commentSchema = new Schema({
-	content: String,
-	created: { type: Date, default: Date.now },
-	updated: {type: Date, default: Date.now },
-	author: String	
-});
 var storySchema = new Schema({
 	title: String,
 	link: String,
-	comments: [commentSchema],
-	author: String,
+	comments: [{type: ObjectId, ref: 'Comment'}],
+	author: {type: ObjectId, ref: 'User', required: true},
 	created: { type: Date, default: Date.now },
 	updated: {type: Date, default: Date.now }
 });

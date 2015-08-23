@@ -14,7 +14,8 @@ include ./partials/header.jade
 							span Posted 
 							=object.timeAgo
 							span  by 
-							=object.author
+								a(href="/profile/"+object.author._id)
+									=object.author.username
 						div 
 							a(href="/news/"+object._id)  
 								=object.commentsLength

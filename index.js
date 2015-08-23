@@ -1,42 +1,64 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var mongodb = require('mongodb');
-var mongoose = require('mongoose');
-var bcrypt = require('bcrypt');
-var flash = require('connect-flash');
-var morgan  = require('morgan');
-var session = require('express-session');
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var ObjectId = mongoose.Types.ObjectId;
+var express = require('express'); // server
+var bodyParser = require('body-parser'); // parsing form contents
+var mongodb = require('mongodb'); // database
+var mongoose = require('mongoose'); // odm for database
+var bcrypt = require('bcrypt'); // encryption
+var flash = require('connect-flash'); // error messages
+var morgan  = require('morgan'); // console logger
+var session = require('express-session'); // session for express
+var passport = require('passport'); // authentication
+var LocalStrategy = require('passport-local').Strategy; // local strategy
+var ObjectId = mongoose.Schema.Types.ObjectId;
+
 var app = express();
 
-
-// middleware logger for http request/reponse
-app.use(morgan('dev'));
-// view engine, the template engine to use
-app.set('view engine', 'jade');
-// views, the directory where the template files are located
-app.set('views', __dirname + '/views');
+// app & middelware configurations
+app.set('view engine', 'jade'); // view engine, the template engine to use
+app.set('views', __dirname + '/views'); // views, the directory where the template files are located
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
+app.use(morgan('dev')); // middleware logger for http request/reponse
 app.use(flash());
-app.use(session({ secret: 'coco', cookie: { secure: false, maxAge: null }}));
+app.use(session({ name: 'coco', secret: 'coco', resave: false, saveUninitialized: true, cookie: { secure: false, maxAge: null }}));
 app.use(passport.initialize()); // call this middleware to initialize Passport
 app.use(passport.session()); // call this to use persistent login sessions
+app.use(checkAuthenticationStatus);
 
 var port = process.env.PORT || 4000;
 app.listen(port, function() {
 	console.log('Listening at ' + port);
 });
-
 mongoose.connect('mongodb://localhost/benjel');
 
 var Story = require('./models/story');
 var User = require('./models/user');
-
-passport.use('local', new LocalStrategy({passReqToCallback: true}, function(req, username, password, done) {
+var Comment = require('./models/comment');
+passport.use('local-register', new LocalStrategy({passReqToCallback: true}, function(req, username, password, done) {
+	User.findOne({'username': username}, function(err, user) {
+		if (err) {
+			console.log(err);
+			return done(err);
+		}
+		if (user) {
+			console.log('user exists');
+			return done(null, false, req.flash('registerMessage', 'Username exists already. Pick a new one.'))
+		}
+		else {
+			var newUser = new User();
+			newUser.username = username;
+			newUser.password = generateHash(password);
+			
+			newUser.save(function(err) {
+				if (err) {
+					throw err;
+				}
+				return done(null, newUser);
+			});
+		}
+	});
+}));
+passport.use('local-login', new LocalStrategy({passReqToCallback: true}, function(req, username, password, done) {
 	User.findOne({'username': username}, function(err, user) {
 		if (err) {
 			console.log(err);
@@ -51,7 +73,7 @@ passport.use('local', new LocalStrategy({passReqToCallback: true}, function(req,
 			return done(null, false, req.flash('loginMessage', 'Incorrect password.'));
 		}
 		return done(null, user);
-	})
+	});
 }));
 passport.serializeUser(function(user, done) {
 	done(null, user.id);
@@ -62,32 +84,27 @@ passport.deserializeUser(function(id, done) {
 	});
 });
 
+var generateHash = function(password) {
+	return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
+};
 var validPassword = function(user, password) {
-	if (user.password == null) {
-		user.password = "";
-	}
 	return bcrypt.compareSync(password, user.password);
-}
-// gonna need app.all()
+};
 
 app.get('/', function(req, res) {
-	var sess = req.session;
-	console.log(sess);
-	console.log("Cookies: ", req.cookies);
-	Story.find({}).sort({date: -1}).exec(function(err, stories) {
+	console.log(req.session);
+	Story.find({}).sort({created: -1}).populate('author').lean().exec(function(err, stories) {
 		if (err) throw err;
-
-		for(var x=0; x < stories.length; x++) {
-			// Gets the length of the comments array
-			stories[x].commentsLength = stories[x].comments.length; 
-			// Calculate the time from the date the post was posted
-			stories[x].created = stories[x]._id.getTimestamp();
-			stories[x].timeAgo = timeHandler(stories[x]);
-		}
-		res.render('news', {message: "Homepage", data: stories});
-	})
+		stories.forEach(function(story) {
+			story.commentsLength = story.comments.length;
+			story.created = story._id.getTimestamp();
+			story.timeAgo = timeHandler(story);
+		});
+		//console.log(stories);
+		res.render('news', {data: stories});
+	});
 });
-app.get('/submit', function(req, res) {
+app.get('/submit', ensureAuthenticated, function(req, res) {
 	res.render('submit');
 });
 
@@ -101,34 +118,62 @@ app.get('/news', function(req, res) {
 });
 app.post('/news', function(req, res) {
 	var story = new Story();
-	var comment = {"author": "Steven", "content": req.body['comments']};
-	story['title'] = req.body['title'];
-	story['link']  = req.body['link'];
-	story['author'] = 'Steven Chen';
-	story['comments'].push(comment);
-	story.save(function(err, data) {
-		if (err) {
-			console.log(err);
-			res.send(err);
-		}
-		console.log(story);
-		res.redirect('/news/' + encodeURIComponent(data._id));
+	story.title = req.body.title;
+	story.link  = req.body.link;
+	story.author = req.session.passport.user;
+	function post(model, callback) {
+		model.save(function(err, data) {
+			if (err) {
+				throw err;
+			}
+			callback(null, data);
+		})
+	}
+	post(story, function(err, data) {
+		var comment = new Comment();
+		comment.author = req.session.passport.user;
+		comment.content = req.body.comments;
+		comment.story = data._id;
+		post(comment, function(err, data) {
+			if (err) {
+				throw err;
+				console.log(err);
+			}
+			Story.findOneAndUpdate({_id: data.story}, {$addToSet: {comments: {_id: data._id}}}, function(err, data) {
+				res.redirect('/news/' + encodeURIComponent(data._id));
+			});
+		});
 	})
-	
-});
+})
 app.get('/news/:id', function(req, res) {
-	Story.find({_id: req.params.id}, function(err, data) {
-		if(err) throw err;
-		res.locals.address = "http://localhost:4000/";
-		data[0].timeAgo = timeHandler(data[0]);
-		for(var x=0; x < data[0].comments.length; x++) {
-			data[0].comments[x].timeAgo = timeHandler(data[0].comments[x]);
-		}
-		res.render('news-single', {data: data});
-	})
+	Story.findOne({"_id": req.params.id}).populate('author').exec(function(err, story) {
+		if (err) throw err;
+		story.timeAgo = timeHandler(story);
+		story.commentsLength = story.comments.length;
+		//console.log("Story:" + story);
+		Comment.find({"story": req.params.id}).sort({created: -1}).populate('author').exec(function(err, comments) {
+			if (err) throw err;
+			comments.forEach(function(comment) {
+				comment.timeAgo = timeHandler(comment);
+			});
+			var formAction = "/news/"+req.params.id+"/comment";
+			res.render('news-single', {story: story, comments: comments, formAction: formAction });
+		});	
+	});
 });
 app.post('/news/:id/comment', function(req, res) {
-	var comment = {"author": 'Steven',"content": req.body.comment}
+	var comment = new Comment();
+	comment.author = req.session.passport.user;
+	comment.content = req.body.comments;
+	comment.story = req.params.id;
+	comment.save(function(err, data) {
+		if (err) throw err;
+		Story.findOneAndUpdate({'_id': req.params.id}, {$addToSet: {comments: {'_id': data._id}}}, function(err, story) {
+			if (err) throw err;
+			res.redirect('/news/' + encodeURIComponent(req.params.id));
+		});
+	});
+
 	
 	// Story.findOne({_id: req.params.id}, function(err, story) {
 	// 	if(err) throw err;
@@ -138,35 +183,54 @@ app.post('/news/:id/comment', function(req, res) {
 	// 		console.log(story);
 	// 	});
 	// })
-	Story.findOneAndUpdate({_id: req.params.id}, {$addToSet: {comments: comment}}, 
-	    function(err,data) { 
-	       if(err) throw err; 
-	    }
-	)
-	// var commentsLength = 0;
-	// Story.find({"_id": req.params.id}, function(err, data) {
-	// 	commentsLength = data[0].comments.length;
-	// });
-	Story.findById({"_id": req.params.id}).select({"comments": { "$slice": -1 }}).exec(function(err, data) {;
-		data.comments[0].created = timeHandler(data.comments[0]);
-		console.log(data.comments[0]);
-		res.send(data.comments[0]);
-	});
 
 });
-app.get('/login', function(req, res) {
-	res.render('login', {message: req.flash('loginMessage')});
+app.get('/register', function(req, res) {
+	if (req.isAuthenticated()) {
+		res.redirect('/');
+	}
+	else {
+		res.render('register', {message: req.flash('registerMessage')});
+	}
+
 });
-app.post('/login', passport.authenticate('local', {
+app.post('/register', passport.authenticate('local-register', {
+	successRedirect: '/',
+	failureRedirect: '/register',
+	failureFlash: true
+}));
+app.get('/login', function(req, res) {
+	if (req.isAuthenticated()) {
+		res.redirect('/');
+	} 
+	else {
+		res.render('login', {message: req.flash('loginMessage')});	
+	}
+});
+app.post('/login', passport.authenticate('local-login', {
 	successRedirect: '/',
 	failureRedirect: '/login',
 	failureFlash: true
 }));
+app.get('/logout', function(req, res) {
+	req.logout();
+	res.redirect('/');
+});
+app.get('/profile', ensureAuthenticated, function(req, res) {
+	User.findOne({"_id": req.session.passport.user}, function(err, user) {
+		if (err) throw err;
+		console.log(user);
+		res.render('profile', {user: user});
+	});
+});
+app.get('/profile/:id', function(req, res) {
+	User.findById({"_id": req.params.id}, function(err, user) {
+		res.render('profile', {user: user});
+	});
+});
 app.get('/api', function(req, res) {
 	res.render('api');
 });
-
-
 function bufferHandler() {
 	var buffer = new Buffer("55cbf517a52629b3da527386");
 	var s = buffer.toString('hex');
@@ -175,8 +239,8 @@ function bufferHandler() {
 	var s = buffer.toString('hex');
 	console.log(s);
 }
-function timeHandler(story) {
-	var date1 = story._id.getTimestamp();
+function timeHandler(data) {
+	var date1 = data._id.getTimestamp();
 	var date2 = new Date();
 	var date3 = Math.abs(date2 - date1);
 	return msToTime(date3);
@@ -234,3 +298,16 @@ function msToTime(duration) {
 	//console.log(timeAgo);
 	return(timeAgo);
 }
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) {
+		next();
+	}
+	else {
+		req.flash('Error', 'You must be logged in');
+		res.redirect('/login');
+	}
+}
+function checkAuthenticationStatus(req, res, next) {
+	res.locals.isAuthenticated = req.isAuthenticated(); 
+	next();
+};

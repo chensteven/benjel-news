@@ -18,26 +18,26 @@ $(document).ready(function() {
 			dataType: 'jsonp'
 		});
 	});
-	$('.comment-submit').click(function() {
-		var link = $('.link-add').attr("href");
-		var jsonData = {
-			comment: $('.comment-textarea').val()
-		}
-		$.ajax({
-			type: 'POST',
-			url: link + "/comment",
-			data: jsonData,
-			success: function(data) {
-				console.log(data);
-				$('.comments').append(
-					"<p>"+data.content+"</p><p>"+data.author+"</p><p>"+data.created+"</p>"
-				);
-			},
-			error: function(err){
-				console.log(err);	
-			}
-		});
-	});
+	// $('.comment-submit').click(function() {
+	// 	var link = $('.link-add').attr("href");
+	// 	var jsonData = {
+	// 		comment: $('.comment-textarea').val()
+	// 	}
+	// 	$.ajax({
+	// 		type: 'POST',
+	// 		url: link + "/comment",
+	// 		data: jsonData,
+	// 		success: function(data) {
+	// 			console.log(data);
+	// 			// $('.comments').append(
+	// 			// 	"<p>"+data.content+"</p><p>"+data.author+"</p><p>"+data.created+"</p>"
+	// 			// );
+	// 		},
+	// 		error: function(err){
+	// 			console.log(err);	
+	// 		}
+	// 	});
+	// });
 });
 
 (function() {

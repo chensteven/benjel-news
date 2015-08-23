@@ -1,0 +1,11 @@
+include ./partials/header.jade
+.container
+	.row
+		.col-sm-6
+			h1 Proflile
+			if user
+				h4 Username:
+				=user.username
+				h4 Joined Date:
+				=user.joined
+				
