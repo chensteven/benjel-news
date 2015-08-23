@@ -10,6 +10,7 @@ Note: I have excluded node_modules and bower_components so run your own npm inst
 - run nodemon.js
 
 *might need to run sudo if you don't have permission configured properly
+
 *dont forget to start your mongodb
 
 
