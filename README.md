@@ -3,6 +3,7 @@ A Hacker News/Reddit alike app for the Benjels!!!!
 
 ## Installation
 
+Note: I have excluded node_modules and bower_components so run your own npm install please
 - Git clone this repo
 - run npm install
 - run bower install
@@ -12,8 +13,13 @@ A Hacker News/Reddit alike app for the Benjels!!!!
 
 ## Upcoming features
 
-this is still very basic and shit, lots of work inc
+Note: this is still very basic and crappy. there are lots of work inc.
 
+### Next Fixes
+- Include Server form validation
+- Incude Browser form validation
+- Inclde Test cases
+### Dev List
 - need a grunt or gulp
 - need less or sass
 - need live reload
