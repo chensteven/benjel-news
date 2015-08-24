@@ -1,3 +1,29 @@
-.textarea-comment {
+@import "/bootstrap/dist/css/bootstrap.css";
+
+.underline {
+	text-decoration: underline;
+}
+/*.comment-count {
+	position: relative;
+	padding-right: 15px;
+}
+.comment-count:after {
+	content: '\2022';
+    position: absolute;
+    right: 4px;
+}*/
+#story-form textarea.form-control {
 	height: 200px;
+}
+.story-title:required:valid {
+	border-color: green;
+}
+.story-title:required:invalid {
+	border-color: red;
+}
+.link-hint {
+	display: none;
+}
+::-webkit-validation-bubble-message {
+    padding: 5em;
 }

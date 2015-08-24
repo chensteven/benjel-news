@@ -1,11 +1,18 @@
-nav.clearfix.white.bg-black
-	.sm-col
-		a(href="/" class="btn py2") Home
-		//a(href='/api' class="btn py2") API
-		a(href="/submit" class="btn py2") Submit
-		a(href="/profile" class="btn py2") Profile
-		if !isAuthenticated
-			a(href="/login" class="btn py2") Login
-		else
-			a(href="/logout" class="btn py2") Logout
+nav(class="navbar navbar-default")
+	.container
+		ul(class="nav navbar-nav")
+			li
+				a(href="/" class="btn py2") Home
+			//a(href='/api' class="btn py2") API
+			li
+				a(href="/submit" class="btn py2") Submit
+	
+			if !isAuthenticated
+				li
+					a(href="/login" class="btn py2") Login
+			else
+				li
+					a(href="/profile" class="btn py2") Profile
+				li
+					a(href="/logout" class="btn py2") Logout
 		

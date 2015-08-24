@@ -8,7 +8,7 @@ include ./partials/header.jade
 				div.border.p5
 					div
 						h3
-							a(href="//"+story.link)= story.title
+							a(href=story.link)= story.title
 					div 
 						span Posted 
 						=story.timeAgo
@@ -17,9 +17,11 @@ include ./partials/header.jade
 								span=story.author.username
 					div.comments
 						h4 
-							a(class="link-add" href="/news/"+story._id)
-								=story.commentsLength 
+							=story.commentsLength 
+							if (story.commentsLength > 1)
 								span  Comments
+							else 
+								span  Comment
 						each val in comments
 							p=val.content
 							p Posted by 
@@ -34,9 +36,7 @@ include ./partials/header.jade
 							button(name="comment-submit" class="comment-submit").btn.btn-primary Add a Comment
 				else
 					div.mt3
-						p You need to login to comment.
-							a(href="/login")  Login here
-
+						p You need an account to comment.
 			else
 				h2 Form Data
 				p No data available right now.

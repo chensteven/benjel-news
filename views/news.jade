@@ -2,24 +2,26 @@ include ./partials/header.jade
 
 .container
 	.clearfix
-		.col.sm-col-6
+		.sm-col-6.bg-white.m2.p2
 			if data
 				h2 Top Stories
 				each object in data
-					div.border.p5
+					div.bg-darken-1.m2.p1
 						div
-							h3
-								a(href="//"+object.link)= object.title
+							h3(class="title-heading")
+								a(href=object.link class="navy")=object.title
+								span(class="gray")=object.displayLink
 						div 
 							span Posted 
 							=object.timeAgo
 							span  by 
-								a(href="/profile/"+object.author._id)
+								a(href="/profile/"+object.author._id class="underline")
 									=object.author.username
 						div 
-							a(href="/news/"+object._id)  
-								=object.commentsLength
-								span  Comments
+							a(href="/news/"+object._id class="underline comment-count")  
+									=object.commentsLength
+									span  Comments
+							
 			else
 				h2 Form Data
 				p No data available right now.

@@ -12,7 +12,8 @@ var userSchema = new Schema({
 	},
 	password: {
 		type: String,
-		trim: true
+		trim: true,
+		required: true
 	},
 	joined: {
 		type: Date,

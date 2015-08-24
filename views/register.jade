@@ -3,13 +3,13 @@ include ./partials/header.jade
 .container
 	.row
 		h2.p2.m2 Register Form
-		form(id="login-form" method="post" action="/register").col-sm-4.border.p2.m2
+		form(id="login-form" name="login-form" method="post" action="/register").col-sm-4.border.p2.m2
 			.form-group
 				label(for="username") Username:
-				input(type="text" id="username" name="username" class="form-control" placeholder="Username")
+				input(type="text" id="login-username" name="login-username" class="form-control" placeholder="Username")
 			.form-group
 				label(for="password") Password
-				input(type="password" id="password" name="password" class="form-control" placeholder="Password")
-			button(type="submit" class="btn btn-default" id="login-submit") Submit
+				input(type="password" id="login-password" name="login-password" class="form-control" placeholder="Password")
+			button(type="submit" class="btn btn-default" name="login-submit" id="login-submit") Submit
 			if message.length > 0
 				p #{message}

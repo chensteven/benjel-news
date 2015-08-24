@@ -8,6 +8,7 @@ var morgan  = require('morgan'); // console logger
 var session = require('express-session'); // session for express
 var passport = require('passport'); // authentication
 var LocalStrategy = require('passport-local').Strategy; // local strategy
+var connectEnsureLogin = require('connect-ensure-login');
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
 var app = express();
@@ -16,6 +17,7 @@ var app = express();
 app.set('view engine', 'jade'); // view engine, the template engine to use
 app.set('views', __dirname + '/views'); // views, the directory where the template files are located
 app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/bower_components'));
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(morgan('dev')); // middleware logger for http request/reponse
@@ -24,6 +26,7 @@ app.use(session({ name: 'coco', secret: 'coco', resave: false, saveUninitialized
 app.use(passport.initialize()); // call this middleware to initialize Passport
 app.use(passport.session()); // call this to use persistent login sessions
 app.use(checkAuthenticationStatus);
+console.lo
 
 var port = process.env.PORT || 4000;
 app.listen(port, function() {
@@ -34,7 +37,7 @@ mongoose.connect('mongodb://localhost/benjel');
 var Story = require('./models/story');
 var User = require('./models/user');
 var Comment = require('./models/comment');
-passport.use('local-register', new LocalStrategy({passReqToCallback: true}, function(req, username, password, done) {
+passport.use('local-register', new LocalStrategy({passReqToCallback: true, usernameField: 'login-username', passwordField: 'login-password'}, function(req, username, password, done) {
 	User.findOne({'username': username}, function(err, user) {
 		if (err) {
 			console.log(err);
@@ -58,7 +61,7 @@ passport.use('local-register', new LocalStrategy({passReqToCallback: true}, func
 		}
 	});
 }));
-passport.use('local-login', new LocalStrategy({passReqToCallback: true}, function(req, username, password, done) {
+passport.use('local-login', new LocalStrategy({passReqToCallback: true, usernameField: 'login-username', passwordField: 'login-password'}, function(req, username, password, done) {
 	User.findOne({'username': username}, function(err, user) {
 		if (err) {
 			console.log(err);
@@ -99,12 +102,13 @@ app.get('/', function(req, res) {
 			story.commentsLength = story.comments.length;
 			story.created = story._id.getTimestamp();
 			story.timeAgo = timeHandler(story);
+			story.displayLink = "("+story.link+")"; 
 		});
 		//console.log(stories);
 		res.render('news', {data: stories});
 	});
 });
-app.get('/submit', ensureAuthenticated, function(req, res) {
+app.get('/submit', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) {
 	res.render('submit');
 });
 
@@ -118,8 +122,8 @@ app.get('/news', function(req, res) {
 });
 app.post('/news', function(req, res) {
 	var story = new Story();
-	story.title = req.body.title;
-	story.link  = req.body.link;
+	story.title = req.body['story-title'];
+	story.link  = req.body['story-link'].replace(/.*?:\/\//g, "").replace(/^www./,'');
 	story.author = req.session.passport.user;
 	function post(model, callback) {
 		model.save(function(err, data) {
@@ -130,19 +134,25 @@ app.post('/news', function(req, res) {
 		})
 	}
 	post(story, function(err, data) {
-		var comment = new Comment();
-		comment.author = req.session.passport.user;
-		comment.content = req.body.comments;
-		comment.story = data._id;
-		post(comment, function(err, data) {
-			if (err) {
-				throw err;
-				console.log(err);
-			}
-			Story.findOneAndUpdate({_id: data.story}, {$addToSet: {comments: {_id: data._id}}}, function(err, data) {
-				res.redirect('/news/' + encodeURIComponent(data._id));
+		if(req.body['story-comment']) {
+			var comment = new Comment();
+			comment.story = data._id;
+			comment.author = req.session.passport.user;
+			comment.content = req.body['story-comment'];
+			post(comment, function(err, data) {
+				if (err) {
+					throw err;
+					console.log(err);
+				}
+				Story.findOneAndUpdate({_id: data.story}, {$addToSet: {comments: {_id: data._id}}}, function(err, data) {
+					if (err) throw err;
+					res.redirect('/news/' + encodeURIComponent(data._id));
+				});
 			});
-		});
+		}
+		else {
+			res.redirect('/news/' + encodeURIComponent(data._id));
+		}
 	})
 })
 app.get('/news/:id', function(req, res) {
@@ -208,7 +218,7 @@ app.get('/login', function(req, res) {
 	}
 });
 app.post('/login', passport.authenticate('local-login', {
-	successRedirect: '/',
+	successReturnToOrRedirect: '/',
 	failureRedirect: '/login',
 	failureFlash: true
 }));
@@ -304,6 +314,7 @@ function ensureAuthenticated(req, res, next) {
 	}
 	else {
 		req.flash('Error', 'You must be logged in');
+		req.session.path = req.path;
 		res.redirect('/login');
 	}
 }
