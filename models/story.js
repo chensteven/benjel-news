@@ -8,7 +8,9 @@ var storySchema = new Schema({
 	comments: [{type: ObjectId, ref: 'Comment'}],
 	author: {type: ObjectId, ref: 'User', required: true},
 	created: { type: Date, default: Date.now },
-	updated: {type: Date, default: Date.now }
+	updated: {type: Date, default: Date.now },
+	upvote: {type: Number, default: 0},
+	downvote: {type: Number, default: 0}
 });
 
 module.exports = mongoose.model('Story', storySchema);

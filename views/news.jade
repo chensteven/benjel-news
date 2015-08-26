@@ -1,12 +1,12 @@
 include ./partials/header.jade
 
 .container
-	.clearfix
-		.sm-col-6.bg-white.m2.p2
+	.row
+		.col-sm-6
 			if data
 				h2 Top Stories
 				each object in data
-					div.bg-darken-1.m2.p1
+					div
 						div
 							h3(class="title-heading")
 								a(href=object.link class="navy")=object.title
@@ -21,8 +21,18 @@ include ./partials/header.jade
 							a(href="/news/"+object._id class="underline comment-count")  
 									=object.commentsLength
 									span  Comments
+						div
+							span(class="upvote-counter")=object.upvote
+							button(class="btn btn-default upvote-add") +
+							span or 
+							button(class="btn btn-default upvote-minus") -
 							
 			else
 				h2 Form Data
 				p No data available right now.
+				
+.container
+	.row
+		.col-sm-6
+			#react
 		

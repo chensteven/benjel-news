@@ -27,7 +27,11 @@ var userSchema = new Schema({
 	stories: [{
 		type: ObjectId,
 		ref: 'Story'
-	}]
+	}],
+	votedPosts: [{
+		type: ObjectId,
+		ref: 'Story'
+	}] 
 });
 
 module.exports = mongoose.model('User', userSchema);

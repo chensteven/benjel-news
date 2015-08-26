@@ -102,7 +102,9 @@ app.get('/', function(req, res) {
 			story.commentsLength = story.comments.length;
 			story.created = story._id.getTimestamp();
 			story.timeAgo = timeHandler(story);
-			story.displayLink = "("+story.link+")"; 
+			story.l = story.link.replace(/.*?:\/\//g, "").replace(/^www./,'http://');
+			story.displayLink = trump(story.l, "/");
+			story.displayLink = "("+story.displayLink+")";
 		});
 		//console.log(stories);
 		res.render('news', {data: stories});
@@ -123,7 +125,7 @@ app.get('/news', function(req, res) {
 app.post('/news', function(req, res) {
 	var story = new Story();
 	story.title = req.body['story-title'];
-	story.link  = req.body['story-link'].replace(/.*?:\/\//g, "").replace(/^www./,'');
+	story.link = urlHandler(req.body['story-link']);
 	story.author = req.session.passport.user;
 	function post(model, callback) {
 		model.save(function(err, data) {
@@ -160,7 +162,7 @@ app.get('/news/:id', function(req, res) {
 		if (err) throw err;
 		story.timeAgo = timeHandler(story);
 		story.commentsLength = story.comments.length;
-		//console.log("Story:" + story);
+		//console.log("Story:" + story);	
 		Comment.find({"story": req.params.id}).sort({created: -1}).populate('author').exec(function(err, comments) {
 			if (err) throw err;
 			comments.forEach(function(comment) {
@@ -170,6 +172,63 @@ app.get('/news/:id', function(req, res) {
 			res.render('news-single', {story: story, comments: comments, formAction: formAction });
 		});	
 	});
+});
+app.post('/news/:id', function(req, res) {
+	
+});
+app.post('/news/:id/upvote', function(req, res) {
+	if (req.session.passport.user) {
+		User.findById({'_id': req.session.passport.user}, 'votedPosts', function(err, data) {
+			var flag = false;
+			for(var post in data.votedPosts) {
+				if (req.params.id == data.votedPosts[post]) {
+					flag = true;
+				}
+			}
+			if (!flag) {
+				User.update({'_id': req.session.passport.user}, {$addToSet: {votedPosts: req.params.id}}, function(err, data) {
+					Story.findByIdAndUpdate({'_id': req.params.id}, {$inc: { upvote: 1}}, function(err, data) {
+						if (err) throw err;
+						res.end();
+					});	
+				});	
+			} 
+			else {
+				res.status(401).end();
+			}
+		});
+	}
+	else {
+		// TODO: send error  message
+		res.status(401).end();
+	}
+
+});
+app.post('/news/:id/downvote', function(req, res) {
+	if (req.session.passport.user) {
+		User.findById({'_id': req.session.passport.user}, 'votedPosts', function(err, data) {
+			var flag = false;
+			for (var post in data.votedPosts) {
+				if (req.params.id == data.votedPosts[post]) {
+					flag = true;
+				}
+			}
+			if (flag) {
+				User.update({'_id': req.session.passport.user}, {$pull: {votedPosts: req.params.id}}, function(err, data) {
+					Story.findByIdAndUpdate({'_id': req.params.id}, {$inc: { upvote: -1}}, function(err, data) {
+						if (err) throw err;
+						res.end();
+					});		
+				});
+			}
+			else {
+				res.status(401).end();
+			}
+		});
+	}
+	else {
+		res.status(401).end();
+	}
 });
 app.post('/news/:id/comment', function(req, res) {
 	var comment = new Comment();
@@ -241,6 +300,19 @@ app.get('/profile/:id', function(req, res) {
 app.get('/api', function(req, res) {
 	res.render('api');
 });
+app.post('/comments', function(req, res) {
+	console.log(req.body);
+	var comment = new Comment();
+	comment.author = "55d7a215a3695c620c586f12";
+	comment.content = req.body.text;
+	comment.story = '55dce180559c9a0b131f8c9f';
+	console.log(comment);
+	comment.save(function(err, data) {
+		if (err) throw err;
+		console.log(data);
+		res.json(data);
+	})
+})
 function bufferHandler() {
 	var buffer = new Buffer("55cbf517a52629b3da527386");
 	var s = buffer.toString('hex');
@@ -313,12 +385,38 @@ function ensureAuthenticated(req, res, next) {
 		next();
 	}
 	else {
-		req.flash('Error', 'You must be logged in');
-		req.session.path = req.path;
 		res.redirect('/login');
 	}
 }
 function checkAuthenticationStatus(req, res, next) {
 	res.locals.isAuthenticated = req.isAuthenticated(); 
 	next();
+};
+
+function trump(str, pattern) {
+  var trumped = "";  // default return for invalid string and pattern
+
+  if (str && str.length) {
+    trumped = str;
+    if (pattern && pattern.length) {
+      var idx = str.indexOf(pattern);
+      if (idx != -1) {
+        trumped = str.substring(0, idx);
+      }
+    }
+  }
+  return (trumped);
+}
+function urlHandler(_str) {
+	var str = _str;
+	var pattern = "www.";
+	str = str.replace(/.*?:\/\//g, "");
+	var index = str.indexOf(pattern);
+	if (index != -1) {
+		str = str.replace(/^www./,'http://');
+	}
+	else {
+		str = str.replace(/^/, 'http://');
+	}
+	return str;
 };

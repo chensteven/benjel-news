@@ -1,11 +1,11 @@
 include ./partials/header.jade
 
 .container
-	.clearfix
-		.col.sm-col-6
+	.row
+		.sm-col-6
 			if story
 				h2 Top Stories
-				div.border.p5
+				div
 					div
 						h3
 							a(href=story.link)= story.title
@@ -15,28 +15,29 @@ include ./partials/header.jade
 						span  by 
 							a(href="/profile/"+story.author._id)
 								span=story.author.username
-					div.comments
-						h4 
-							=story.commentsLength 
-							if (story.commentsLength > 1)
-								span  Comments
-							else 
-								span  Comment
-						each val in comments
-							p=val.content
-							p Posted by 
-								a(href="/profile/"+val.author._id)
-									span=val.author.username
-								span  on 
-								span=val.timeAgo
 				if isAuthenticated
-					div.mt3
+					div
 						form(method="post" action="#{formAction}")
-							textarea(class="comment-textarea" name="comments", cols="50", rows="10")
+	
+							textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10")
 							button(name="comment-submit" class="comment-submit").btn.btn-primary Add a Comment
 				else
 					div.mt3
 						p You need an account to comment.
+				div.comments
+					h4 
+						=story.commentsLength 
+						if (story.commentsLength > 1)
+							span  Comments
+						else 
+							span  Comment
+					each val in comments
+						p=val.content
+						p Posted by 
+							a(href="/profile/"+val.author._id)
+								span=val.author.username
+							span  on 
+							span=val.timeAgo
 			else
 				h2 Form Data
 				p No data available right now.
