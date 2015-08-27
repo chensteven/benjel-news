@@ -15,11 +15,21 @@ include ./partials/header.jade
 						span  by 
 							a(href="/profile/"+story.author._id)
 								span=story.author.username
+				if story.sameAuthor
+					div
+						button(class="btn btn-default")
+							a(href="/news/"+story._id+"/edit") Edit
+						button(class="btn btn-default btn-delete-story")
+							a(href="/news/"+story._id+"#") Delete
+				
+				div
+					p=story.content
+				
 				if isAuthenticated
 					div
 						form(method="post" action="#{formAction}")
 	
-							textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10")
+							textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)
 							button(name="comment-submit" class="comment-submit").btn.btn-primary Add a Comment
 				else
 					div.mt3
@@ -31,13 +41,20 @@ include ./partials/header.jade
 							span  Comments
 						else 
 							span  Comment
-					each val in comments
-						p=val.content
+							
+					each comment in comments
+						p=comment.content
 						p Posted by 
-							a(href="/profile/"+val.author._id)
-								span=val.author.username
+							a(href="/profile/"+comment.author._id)
+								span=comment.author.username
 							span  on 
-							span=val.timeAgo
+							span=comment.timeAgo
+						if comment.sameAuthor
+							div
+								button(class="btn btn-default")
+									a(href="/comment/"+comment._id+"/edit") Edit
+								button(class="btn btn-default btn-delete-comment")
+									a(href="/comment/"+comment._id+"#") Delete
 			else
 				h2 Form Data
 				p No data available right now.

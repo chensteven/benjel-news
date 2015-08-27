@@ -28,6 +28,10 @@ var userSchema = new Schema({
 		type: ObjectId,
 		ref: 'Story'
 	}],
+	comments: [{
+		type: ObjectId,
+		ref: 'Comment'
+	}],
 	votedPosts: [{
 		type: ObjectId,
 		ref: 'Story'

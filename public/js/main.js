@@ -1,4 +1,33 @@
 $(document).ready(function() {
+	$('.btn-delete-comment').click(function(){
+		var ajaxUrl = $(this).children('a')[0].pathname;
+		var returnUrl = window.location.href;
+		$.ajax({
+			url: ajaxUrl,
+			type: 'DELETE',
+			dateType: 'html',
+			success: function(data) {
+				window.location.href = returnUrl;
+			},
+			error: function(xhr, status, error) {
+				console.log(xhr+" "+status+" "+error);
+			}
+		});
+	});
+	$('.btn-delete-story').click(function(){
+		var ajaxUrl = $(this).children('a')[0].pathname;
+		$.ajax({
+			type: 'DELETE',
+			dataType: 'html',
+			url: ajaxUrl,
+			success: function(data) {
+				window.location.href = '/';
+			},
+			error: function(xhr, status, error) {
+				console.log(xhr +" "+status+" "+error);
+			}
+		});
+	});
 	$('.upvote-add').click(function() {
 		var self = this;
 		var num = parseInt($(this).siblings('.upvote-counter')[0].innerText);

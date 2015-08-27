@@ -1,0 +1,18 @@
+include ./partials/header.jade
+
+.container
+	.row
+		.sm-col-6
+			h2 Hello
+			form(method="post" action="#{formAction}" id="story-form" name="story-form" )
+				.form-group
+					label(for="story-title").bold Title of your post:
+					input(type="text" id="story-title" name="story-title" class="story-title form-control" placeholder="Everything needs a title" value=story.title required autofocus)
+					span(class="title-hint")
+				.form-group
+					h5 Enter a link or a comment:
+					input(type="url" id="story-link" name="story-link" class="story-link form-control" placeholder="http://www.benjels.com" value=story.link)
+					span(class="link-hint") Remember to add "http" or "https" infront of your link				
+				.form-group
+					textarea(id="story-comment" name="story-comment" class="story-comment form-control" placeholder="Be thoughtful.")=story.content
+				button(id="story-button" name="story-submit" class="story-button" type="submit").btn.btn-primary Post

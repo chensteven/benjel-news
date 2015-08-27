@@ -1,0 +1,19 @@
+include ./partials/header.jade
+.container
+	.row
+		.sm-col-6
+			div
+				div
+					h3
+						a(href=story.link)= story.title
+				div 
+					span Posted 
+					=story.timeAgo
+					span  by 
+						a(href="/profile/"+story.author._id)
+							span=story.author.username
+			div
+				p=story.content
+			form(method="post" action="#{formAction}")
+				textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)=comment.content
+				button(name="comment-submit" class="comment-submit").btn.btn-primary Save Changes

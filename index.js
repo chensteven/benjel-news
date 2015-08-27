@@ -102,9 +102,7 @@ app.get('/', function(req, res) {
 			story.commentsLength = story.comments.length;
 			story.created = story._id.getTimestamp();
 			story.timeAgo = timeHandler(story);
-			story.l = story.link.replace(/.*?:\/\//g, "").replace(/^www./,'http://');
-			story.displayLink = trump(story.l, "/");
-			story.displayLink = "("+story.displayLink+")";
+			story.displayLink = displayUrl(story.link);
 		});
 		//console.log(stories);
 		res.render('news', {data: stories});
@@ -124,58 +122,151 @@ app.get('/news', function(req, res) {
 });
 app.post('/news', function(req, res) {
 	var story = new Story();
-	story.title = req.body['story-title'];
-	story.link = urlHandler(req.body['story-link']);
 	story.author = req.session.passport.user;
-	function post(model, callback) {
-		model.save(function(err, data) {
-			if (err) {
-				throw err;
-			}
-			callback(null, data);
-		})
+	story.title = req.body['story-title'];
+	if (req.body['story-link']) {
+		story.link = urlHandler(req.body['story-link']);
 	}
-	post(story, function(err, data) {
-		if(req.body['story-comment']) {
-			var comment = new Comment();
-			comment.story = data._id;
-			comment.author = req.session.passport.user;
-			comment.content = req.body['story-comment'];
-			post(comment, function(err, data) {
-				if (err) {
-					throw err;
-					console.log(err);
-				}
-				Story.findOneAndUpdate({_id: data.story}, {$addToSet: {comments: {_id: data._id}}}, function(err, data) {
-					if (err) throw err;
-					res.redirect('/news/' + encodeURIComponent(data._id));
-				});
-			});
-		}
-		else {
+	if (req.body['story-comment']) {
+		story.content = req.body['story-comment']
+	}
+	story.save(function(err, data) {
+		if (err) throw err;
+		User.findByIdAndUpdate({'_id': req.session.passport.user}, {$addToSet: {stories: data._id}}).exec(function(err, user) {
 			res.redirect('/news/' + encodeURIComponent(data._id));
-		}
-	})
+		});
+	});
 })
 app.get('/news/:id', function(req, res) {
-	Story.findOne({"_id": req.params.id}).populate('author').exec(function(err, story) {
-		if (err) throw err;
-		story.timeAgo = timeHandler(story);
-		story.commentsLength = story.comments.length;
-		//console.log("Story:" + story);	
-		Comment.find({"story": req.params.id}).sort({created: -1}).populate('author').exec(function(err, comments) {
-			if (err) throw err;
-			comments.forEach(function(comment) {
-				comment.timeAgo = timeHandler(comment);
-			});
-			var formAction = "/news/"+req.params.id+"/comment";
-			res.render('news-single', {story: story, comments: comments, formAction: formAction });
-		});	
+	Story.findOne({"_id": req.params.id}).populate('author comments').exec(function(err, story) {
+		if (err) {
+			throw err;
+			console.log("cant find document:" + err);
+		}
+		if (story) {
+			story.timeAgo = timeHandler(story);
+			story.commentsLength = story.comments.length;
+			if (story.author._id == req.session.passport.user) {
+				story.sameAuthor = true;
+			}
+			Comment.find({"story": req.params.id}).sort({created: -1}).populate('author').exec(function(err, comments) {
+				if (err) throw err;
+				comments.forEach(function(comment) {
+					comment.timeAgo = timeHandler(comment);
+					if (comment.author._id == req.session.passport.user) {
+						comment.sameAuthor = true;
+					}
+				});
+				var formAction = "/news/"+req.params.id+"/comment";
+				res.render('news-single', {story: story, comments: comments, formAction: formAction});
+			});	
+		}
+		else {
+			res.render('401.jade');
+		}
 	});
 });
-app.post('/news/:id', function(req, res) {
-	
+app.delete('/news/:id', function(req, res) {
+	User.findByIdAndUpdate({'_id': req.session.passport.user}, {$pull: {stories: req.params.id, votedPosts: req.params.id}}).exec(function(err, data) {
+		Comment.find({'story': req.params.id}, function(err, comments) {
+			if (err) {
+				throw err;
+				res.sendStatus(400);
+			}
+			comments.forEach(function(comment) {
+				User.find({'comments': comment._id}, function(err, users) {
+					if (err) throw err;
+					 users.forEach(function(user) {
+						 user.update({$pull: {comments: comment._id, votedPosts: req.params.id}}, function(err) {
+							 if (err) throw err;
+						 });
+					 })
+				});
+				comment.remove(function(err) {
+					if(err) throw err;
+				})
+			});
+		});
+		Story.findByIdAndRemove({'_id': req.params.id}).exec(function(err, story) {
+			if (err) {
+				throw err;
+				res.sendStatus(400);
+			}
+			else {
+				res.sendStatus(200);
+			}
+		})
+
+	});	
+		// find all the comments in the story
+		// find any user with those comments and update the
+		// User.find({'stories': req.params.id}).populate('stories').exec(function(err, users) {
+		// 	if (err) throw err;
+		// 	User.populate(users, { path: 'stories.comments', model: 'Comment', select: 'stories'}, function(err, user) {
+		// 		if(err) throw err;
+		// 		users
+		// 		//user[0].stories[0].comments[0]._id
+		// 		//Comment.remove({"story": req.params.id}).exec(function(err) {
+		// 			User.findByIdAndUpdate({'_id': req.session.passport.user}, {$pull: {"stories": req.params.id, "votedPosts": req.params.id}}).exec(function(err, data) {
+		// 				if (err) throw err;
+		// 				Story.findByIdAndRemove({'_id': req.params.id}).exec(function(err, story) {
+		// 					if(err) {
+		// 						throw err;
+		// 						res.sendStatus(400);
+		// 					}
+		// 					res.sendStatus(200);					
+		// 				});
+		// 			});
+		// 		//});
+		// 	});
+		// });
+})
+app.get('/news/:id/edit', ensureAuthenticated ,function(req, res) {
+	Story.findOne({"_id": req.params.id}).exec(function(err, story) {
+		var formAction = "/news/"+req.params.id+"/edit";
+		res.render('news-edit', {story: story, formAction: formAction});
+	})
 });
+app.post('/news/:id/edit', function(req, res) {
+	Story.findByIdAndUpdate({"_id": req.params.id}, {title: req.body['story-title'], link: urlHandler(req.body['story-link']), content: req.body['story-comment']}).exec(function(err, story) {
+		if (err) throw err;
+		res.redirect('/news/' + encodeURIComponent(story._id));
+	});
+});
+app.get('/comment/:id/edit', ensureAuthenticated, function(req, res) {
+	Comment.findOne({"_id": req.params.id}).populate('story').exec(function(err, comment) {
+		if (err) throw err;
+		Story.findOne({"_id": comment.story._id}).populate('author').exec(function(err, story) {
+			if (err) throw err;
+			story.timeAgo = timeHandler(story);
+			var formAction = "/comment/"+req.params.id+"/edit";
+			res.render('comment-edit', {comment: comment, story: story, formAction: formAction});
+		});
+	});
+});
+app.post('/comment/:id/edit', function(req, res) {
+	Comment.findByIdAndUpdate({"_id": req.params.id}, {content: req.body['comments']}).exec(function(err, data) {
+		if (err) throw err;
+		res.redirect('/news/' + encodeURIComponent(data.story));
+	});
+});
+app.delete('/comment/:id', function(req, res) {
+	Comment.findOne({'_id': req.params.id}).exec(function(err, comment) {
+		comment.remove(function(err) {
+			if (err) throw err;
+		})
+		Story.findOneAndUpdate({'_id': comment.story }, {$pull: {comments: req.params.id}}).exec(function(err, story) {
+			User.findByIdAndUpdate({'_id': req.session.passport.user}, {$pull: {comments: req.params.id}}).exec(function(err, user) {
+				if (err) {
+					throw err;
+					res.sendStatus(400);
+				}
+				res.sendStatus(200);
+			});
+		})
+	});
+});
+
 app.post('/news/:id/upvote', function(req, res) {
 	if (req.session.passport.user) {
 		User.findById({'_id': req.session.passport.user}, 'votedPosts', function(err, data) {
@@ -239,7 +330,11 @@ app.post('/news/:id/comment', function(req, res) {
 		if (err) throw err;
 		Story.findOneAndUpdate({'_id': req.params.id}, {$addToSet: {comments: {'_id': data._id}}}, function(err, story) {
 			if (err) throw err;
-			res.redirect('/news/' + encodeURIComponent(req.params.id));
+			User.findOneAndUpdate({'_id': req.session.passport.id}, {$addToSet: {comments: {'_id': data._id }}}, function(err, user) {
+				if (err) throw err;
+				res.redirect('/news/' + encodeURIComponent(req.params.id));
+			});
+
 		});
 	});
 
@@ -300,19 +395,6 @@ app.get('/profile/:id', function(req, res) {
 app.get('/api', function(req, res) {
 	res.render('api');
 });
-app.post('/comments', function(req, res) {
-	console.log(req.body);
-	var comment = new Comment();
-	comment.author = "55d7a215a3695c620c586f12";
-	comment.content = req.body.text;
-	comment.story = '55dce180559c9a0b131f8c9f';
-	console.log(comment);
-	comment.save(function(err, data) {
-		if (err) throw err;
-		console.log(data);
-		res.json(data);
-	})
-})
 function bufferHandler() {
 	var buffer = new Buffer("55cbf517a52629b3da527386");
 	var s = buffer.toString('hex');
@@ -385,7 +467,7 @@ function ensureAuthenticated(req, res, next) {
 		next();
 	}
 	else {
-		res.redirect('/login');
+		res.redirect('/');
 	}
 }
 function checkAuthenticationStatus(req, res, next) {
@@ -418,5 +500,12 @@ function urlHandler(_str) {
 	else {
 		str = str.replace(/^/, 'http://');
 	}
+	return str;
+};
+function displayUrl(_str) {
+	var str = _str;
+	str = str.replace(/.*?:\/\//g, "").replace(/^www./,'http://');
+	str = trump(str, "/");
+	str = "("+str+")";
 	return str;
 };

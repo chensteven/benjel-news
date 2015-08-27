@@ -5,6 +5,7 @@ var ObjectId = Schema.Types.ObjectId;
 var storySchema = new Schema({
 	title: {type: String, required: true},
 	link: {type: String},
+	content: {type: String},
 	comments: [{type: ObjectId, ref: 'Comment'}],
 	author: {type: ObjectId, ref: 'User', required: true},
 	created: { type: Date, default: Date.now },
