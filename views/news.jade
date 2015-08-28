@@ -23,9 +23,10 @@ include ./partials/header.jade
 									span  Comments
 						div
 							span(class="upvote-counter")=object.upvote
-							button(class="btn btn-default upvote-add") +
-							span or 
-							button(class="btn btn-default upvote-minus") -
+							if isAuthenticated
+								button(class="btn btn-default upvote-add") +
+								span or 
+								button(class="btn btn-default upvote-minus") -
 							
 			else
 				h2 Form Data

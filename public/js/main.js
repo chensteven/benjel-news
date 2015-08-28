@@ -1,5 +1,6 @@
 $(document).ready(function() {
-	$('.btn-delete-comment').click(function(){
+	$('.btn-delete-comment').click(function(event){
+		event.preventDefault();
 		var ajaxUrl = $(this).children('a')[0].pathname;
 		var returnUrl = window.location.href;
 		$.ajax({
@@ -7,6 +8,7 @@ $(document).ready(function() {
 			type: 'DELETE',
 			dateType: 'html',
 			success: function(data) {
+				console.log(returnUrl);
 				window.location.href = returnUrl;
 			},
 			error: function(xhr, status, error) {

@@ -102,7 +102,9 @@ app.get('/', function(req, res) {
 			story.commentsLength = story.comments.length;
 			story.created = story._id.getTimestamp();
 			story.timeAgo = timeHandler(story);
-			story.displayLink = displayUrl(story.link);
+			if (story.link) {
+				story.displayLink = displayUrl(story.link);
+			}
 		});
 		//console.log(stories);
 		res.render('news', {data: stories});
@@ -111,31 +113,41 @@ app.get('/', function(req, res) {
 app.get('/submit', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) {
 	res.render('submit');
 });
-
 app.get('/news', function(req, res) {
-	Story.find({}).sort({date: -1}).exec(function(err, stories) {
-		if (err) {
-			res.send(err);
-		}
+	Story.find({}).sort({created: -1}).populate('author').lean().exec(function(err, stories) {
+		if (err) throw err;
+		stories.forEach(function(story) {
+			story.commentsLength = story.comments.length;
+			story.created = story._id.getTimestamp();
+			story.timeAgo = timeHandler(story);
+			story.displayLink = displayUrl(story.link);
+		});
+		//console.log(stories);
 		res.render('news', {data: stories});
-	})	
+	});	
 });
 app.post('/news', function(req, res) {
 	var story = new Story();
 	story.author = req.session.passport.user;
 	story.title = req.body['story-title'];
-	if (req.body['story-link']) {
-		story.link = urlHandler(req.body['story-link']);
-	}
-	if (req.body['story-comment']) {
-		story.content = req.body['story-comment']
-	}
-	story.save(function(err, data) {
+	story.save(function(err, story) {
 		if (err) throw err;
-		User.findByIdAndUpdate({'_id': req.session.passport.user}, {$addToSet: {stories: data._id}}).exec(function(err, user) {
-			res.redirect('/news/' + encodeURIComponent(data._id));
-		});
-	});
+		if (req.body['story-link']) {
+			story.link = urlHandler(req.body['story-link']);
+		} else {
+			story.link = urlHandler("news/"+(story._id));
+		}
+		if (req.body['story-comment']) {
+			story.content = req.body['story-comment']
+		}
+		story.save(function(err, data) {
+			if (err) throw err;
+			User.findByIdAndUpdate({'_id': req.session.passport.user}, {$addToSet: {stories: data._id}}).exec(function(err, user) {
+				res.redirect('/news/' + encodeURIComponent(data._id));
+			});
+		});	
+	})
+
 })
 app.get('/news/:id', function(req, res) {
 	Story.findOne({"_id": req.params.id}).populate('author comments').exec(function(err, story) {
@@ -198,28 +210,6 @@ app.delete('/news/:id', function(req, res) {
 		})
 
 	});	
-		// find all the comments in the story
-		// find any user with those comments and update the
-		// User.find({'stories': req.params.id}).populate('stories').exec(function(err, users) {
-		// 	if (err) throw err;
-		// 	User.populate(users, { path: 'stories.comments', model: 'Comment', select: 'stories'}, function(err, user) {
-		// 		if(err) throw err;
-		// 		users
-		// 		//user[0].stories[0].comments[0]._id
-		// 		//Comment.remove({"story": req.params.id}).exec(function(err) {
-		// 			User.findByIdAndUpdate({'_id': req.session.passport.user}, {$pull: {"stories": req.params.id, "votedPosts": req.params.id}}).exec(function(err, data) {
-		// 				if (err) throw err;
-		// 				Story.findByIdAndRemove({'_id': req.params.id}).exec(function(err, story) {
-		// 					if(err) {
-		// 						throw err;
-		// 						res.sendStatus(400);
-		// 					}
-		// 					res.sendStatus(200);					
-		// 				});
-		// 			});
-		// 		//});
-		// 	});
-		// });
 })
 app.get('/news/:id/edit', ensureAuthenticated ,function(req, res) {
 	Story.findOne({"_id": req.params.id}).exec(function(err, story) {
@@ -231,39 +221,6 @@ app.post('/news/:id/edit', function(req, res) {
 	Story.findByIdAndUpdate({"_id": req.params.id}, {title: req.body['story-title'], link: urlHandler(req.body['story-link']), content: req.body['story-comment']}).exec(function(err, story) {
 		if (err) throw err;
 		res.redirect('/news/' + encodeURIComponent(story._id));
-	});
-});
-app.get('/comment/:id/edit', ensureAuthenticated, function(req, res) {
-	Comment.findOne({"_id": req.params.id}).populate('story').exec(function(err, comment) {
-		if (err) throw err;
-		Story.findOne({"_id": comment.story._id}).populate('author').exec(function(err, story) {
-			if (err) throw err;
-			story.timeAgo = timeHandler(story);
-			var formAction = "/comment/"+req.params.id+"/edit";
-			res.render('comment-edit', {comment: comment, story: story, formAction: formAction});
-		});
-	});
-});
-app.post('/comment/:id/edit', function(req, res) {
-	Comment.findByIdAndUpdate({"_id": req.params.id}, {content: req.body['comments']}).exec(function(err, data) {
-		if (err) throw err;
-		res.redirect('/news/' + encodeURIComponent(data.story));
-	});
-});
-app.delete('/comment/:id', function(req, res) {
-	Comment.findOne({'_id': req.params.id}).exec(function(err, comment) {
-		comment.remove(function(err) {
-			if (err) throw err;
-		})
-		Story.findOneAndUpdate({'_id': comment.story }, {$pull: {comments: req.params.id}}).exec(function(err, story) {
-			User.findByIdAndUpdate({'_id': req.session.passport.user}, {$pull: {comments: req.params.id}}).exec(function(err, user) {
-				if (err) {
-					throw err;
-					res.sendStatus(400);
-				}
-				res.sendStatus(200);
-			});
-		})
 	});
 });
 
@@ -330,24 +287,46 @@ app.post('/news/:id/comment', function(req, res) {
 		if (err) throw err;
 		Story.findOneAndUpdate({'_id': req.params.id}, {$addToSet: {comments: {'_id': data._id}}}, function(err, story) {
 			if (err) throw err;
-			User.findOneAndUpdate({'_id': req.session.passport.id}, {$addToSet: {comments: {'_id': data._id }}}, function(err, user) {
+			User.findOneAndUpdate({'_id': req.session.passport.user}, {$addToSet: {comments: {'_id': data._id }}}, function(err, user) {
 				if (err) throw err;
 				res.redirect('/news/' + encodeURIComponent(req.params.id));
 			});
 
 		});
 	});
-
-	
-	// Story.findOne({_id: req.params.id}, function(err, story) {
-	// 	if(err) throw err;
-	// 	story.comments.push(comment);
-	// 	story.save(function(err, data){
-	// 		if (err) {console.log(err); throw(err);}
-	// 		console.log(story);
-	// 	});
-	// })
-
+});
+app.get('/comment/:id/edit', ensureAuthenticated, function(req, res) {
+	Comment.findOne({"_id": req.params.id}).populate('story').exec(function(err, comment) {
+		if (err) throw err;
+		Story.findOne({"_id": comment.story._id}).populate('author').exec(function(err, story) {
+			if (err) throw err;
+			story.timeAgo = timeHandler(story);
+			var formAction = "/comment/"+req.params.id+"/edit";
+			res.render('comment-edit', {comment: comment, story: story, formAction: formAction});
+		});
+	});
+});
+app.post('/comment/:id/edit', function(req, res) {
+	Comment.findByIdAndUpdate({"_id": req.params.id}, {content: req.body['comments']}).exec(function(err, data) {
+		if (err) throw err;
+		res.redirect('/news/' + encodeURIComponent(data.story));
+	});
+});
+app.delete('/comment/:id', function(req, res) {
+	Comment.findOne({'_id': req.params.id}).exec(function(err, comment) {
+		comment.remove(function(err) {
+			if (err) throw err;
+		})
+		Story.findOneAndUpdate({'_id': comment.story }, {$pull: {comments: req.params.id}}).exec(function(err, story) {
+			User.findByIdAndUpdate({'_id': req.session.passport.user}, {$pull: {comments: req.params.id}}).exec(function(err, user) {
+				if (err) {
+					throw err;
+					res.sendStatus(400);
+				}
+				res.sendStatus(200);
+			});
+		})
+	});
 });
 app.get('/register', function(req, res) {
 	if (req.isAuthenticated()) {
@@ -381,10 +360,13 @@ app.get('/logout', function(req, res) {
 	res.redirect('/');
 });
 app.get('/profile', ensureAuthenticated, function(req, res) {
-	User.findOne({"_id": req.session.passport.user}, function(err, user) {
+	User.findOne({"_id": req.session.passport.user}).populate('votedPosts stories').exec(function(err, user) {
 		if (err) throw err;
-		console.log(user);
-		res.render('profile', {user: user});
+		Comment.find({"author": user._id}).populate('story').exec(function(err, comments) {
+			if (err) throw err;
+			console.log(comments);
+			res.render('profile', {user: user, comments: comments});
+		})
 	});
 });
 app.get('/profile/:id', function(req, res) {
@@ -491,21 +473,32 @@ function trump(str, pattern) {
 }
 function urlHandler(_str) {
 	var str = _str;
-	var pattern = "www.";
-	str = str.replace(/.*?:\/\//g, "");
-	var index = str.indexOf(pattern);
-	if (index != -1) {
-		str = str.replace(/^www./,'http://');
+	console.log(str);
+	if (str.indexOf("news") == 0) {
+		str = str.replace(/^/, "/");
 	}
 	else {
-		str = str.replace(/^/, 'http://');
+		var pattern = "www.";
+		str = str.replace(/.*?:\/\//g, "");
+		var index = str.indexOf(pattern);
+		if (index != -1) {
+			str = str.replace(/^www./,'http://');
+		}
+		else {
+			str = str.replace(/^/, 'http://');
+		}
 	}
+	console.log(str);
 	return str;
 };
 function displayUrl(_str) {
 	var str = _str;
-	str = str.replace(/.*?:\/\//g, "").replace(/^www./,'http://');
-	str = trump(str, "/");
-	str = "("+str+")";
+	if (str.indexOf("news") == 1) {
+		str = "";
+	} else {
+		str = str.replace(/.*?:\/\//g, "").replace(/^www./,'http://');
+		str = trump(str, "/");
+		str = "("+str+")";	
+	}
 	return str;
 };

@@ -1,11 +1,38 @@
 include ./partials/header.jade
 .container
+	h1 Profile
 	.row
-		.col-sm-6
-			h1 Proflile
-			if user
+	if user
+		.col-sm-3
+			div
 				h4 Username:
-				=user.username
+				span=user.username
 				h4 Joined Date:
-				=user.joined
+				span=user.joined
+		.col-sm-3
+			div
+				h4 Stories Posted:
+				ul
+				each story in user.stories
+					li
+						a(href="/news/"+story._id)=story.title
+		if comments
+			.col-sm-3
+				div
+					h4 Comments Posted:
+					ul
+					each comment in comments
+						li
+							a(href="/news/"+comment.story._id)=comment.story.title
+							span  - 
+							span=comment.content
+
+		.col-sm-3
+			div
+				h4 Stories Upvoted:
+				ul
+				each voted in user.votedPosts
+					li
+						a(href="/news/"+voted._id)=voted.title
+					
 				

@@ -2,7 +2,7 @@ include ./partials/header.jade
 
 .container
 	.row
-		.sm-col-6
+		.col-sm-6
 			if story
 				h2 Top Stories
 				div
@@ -15,6 +15,10 @@ include ./partials/header.jade
 						span  by 
 							a(href="/profile/"+story.author._id)
 								span=story.author.username
+					div 
+						a(href="/news/"+story._id class="underline comment-count")  
+							=story.commentsLength
+							span  Comments
 				if story.sameAuthor
 					div
 						button(class="btn btn-default")
