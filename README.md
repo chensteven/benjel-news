@@ -16,12 +16,15 @@ Note: I have excluded node_modules and bower_components so run your own npm inst
 
 ## Upcoming features
 
+Track features at Trello board:
+https://trello.com/b/lzNK5Wuj/benjel-news
 Note: this is still very basic and crappy. there are lots of work inc.
 
-### Next Fixes
-- Include Server form validation
-- Incude Browser form validation
-- Inclde Test cases
+### Next Fixes (08/28/15)
+- embedded comments
+- top stories/newest stories
+- favourite posts
+- notifications when posts have comments
 
 ### Dev List
 - need a grunt or gulp
