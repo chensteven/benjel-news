@@ -31,9 +31,9 @@ include ./partials/header.jade
 				
 				if isAuthenticated
 					div
-						form(method="post" action="#{formAction}")
+						form(method="post" action="#{formAction}").sm-col-6
 	
-							textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)
+							textarea(class="comment-textarea field block col-12" name="comments", cols="50", rows="10" required autofocus)
 							button(name="comment-submit" class="comment-submit").btn.btn-primary Add a Comment
 				else
 					div.mt3
@@ -59,6 +59,11 @@ include ./partials/header.jade
 									a(href="/comment/"+comment._id+"/edit") Edit
 								button(class="btn btn-default btn-delete-comment")
 									a(href="/comment/"+comment._id+"#") Delete
+						if isAuthenticated
+							div
+								button(class="btn btn-default reply-closed")
+									a(href="#") Reply
+									
 			else
 				h2 Form Data
 				p No data available right now.

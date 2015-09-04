@@ -35,7 +35,15 @@ var userSchema = new Schema({
 	votedPosts: [{
 		type: ObjectId,
 		ref: 'Story'
-	}] 
+	}],
+	favPosts: [{
+		type: ObjectId,
+		ref: 'Story'
+	}],
+	notifications: {
+		type: Number,
+		default: 0
+	}
 });
 
 module.exports = mongoose.model('User', userSchema);

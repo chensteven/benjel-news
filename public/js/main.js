@@ -1,4 +1,24 @@
 $(document).ready(function() {
+	$('.fav-add').click(function(event) {
+		event.preventDefault();
+		var ajaxUrl = $(this)[0].pathname;
+		var returnUrl = window.location.href;
+		$.ajax({
+			url: ajaxUrl,
+			type: 'POST',
+			success: function(data) {
+				console.log('favourited');
+				console.log(data);
+				window.location.href = returnUrl;
+			},
+			error: function(xhr, status, error) {
+				console.log(xhr +" "+ status + " " + error);
+			}
+		});
+	});
+	$('.btn-notifications').click(function(event) {
+		
+	});
 	$('.btn-delete-comment').click(function(event){
 		event.preventDefault();
 		var ajaxUrl = $(this).children('a')[0].pathname;
@@ -33,7 +53,7 @@ $(document).ready(function() {
 	$('.upvote-add').click(function() {
 		var self = this;
 		var num = parseInt($(this).siblings('.upvote-counter')[0].innerText);
-		var ajaxUrl = $(this).parent().siblings().children('.comment-count')[0].pathname;
+		var ajaxUrl = $(this).parent().siblings().children('.story-comments').children()[2].pathname;
 		$.ajax({
 			type: 'POST',
 			url: ajaxUrl+'/upvote',
@@ -50,8 +70,7 @@ $(document).ready(function() {
 	$('.upvote-minus').click(function() {
 		var self = this;
 		var num = parseInt($(this).siblings('.upvote-counter')[0].innerText);
-
-		var ajaxUrl = $(this).parent().siblings().children('.comment-count')[0].pathname;
+		var ajaxUrl = $(this).parent().siblings().children('.story-comments').children()[2].pathname;
 		$.ajax({
 			type: 'POST',
 			url: ajaxUrl+'/downvote',

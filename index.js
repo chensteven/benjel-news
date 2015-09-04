@@ -95,7 +95,8 @@ var validPassword = function(user, password) {
 };
 
 app.get('/', function(req, res) {
-	console.log(req.session);
+	//console.log(req.session);
+	console.log(req.session.passport.user);
 	Story.find({}).sort({created: -1}).populate('author').lean().exec(function(err, stories) {
 		if (err) throw err;
 		stories.forEach(function(story) {
@@ -106,15 +107,46 @@ app.get('/', function(req, res) {
 				story.displayLink = displayUrl(story.link);
 			}
 		});
-		//console.log(stories);
-		res.render('news', {data: stories});
+		if (req.session.passport.user) {
+			User.findOne({"_id": req.session.passport.user}).populate('favPosts').exec(function(err, user) {
+				if (err) throw err;
+				console.log(user.favPosts);
+				res.render('news', {data: stories, favPosts: user.favPosts});
+			});
+		}
+		else {
+				//console.log(stories);
+			res.render('news', {data: stories});
+		}
+
 	});
 });
 app.get('/submit', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) {
 	res.render('submit');
 });
+app.get('/fav', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) {
+	User.findOne({"_id": req.session.passport.user}).populate('favPosts').exec(function(err, data) {
+		if (err) throw err;
+
+		User.populate(data, {path: 'favPosts.author', model: 'User'}, function(err, data) {
+			if (err) throw err;
+			console.log(data);
+			res.render('fav', {data: data});
+		});
+	})
+
+});
+app.post('/fav/:id', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) {
+	User.findByIdAndUpdate({"_id": req.session.passport.user}, {$addToSet: {favPosts: req.params.id}}).exec(function(err, data) {
+		if (err) {
+			throw err;
+			res.sendStatus(400);
+		}
+		res.sendStatus(200);
+	});
+})
 app.get('/news', function(req, res) {
-	Story.find({}).sort({created: -1}).populate('author').lean().exec(function(err, stories) {
+	Story.find({}).sort({upvote: -1}).populate('author').lean().exec(function(err, stories) {
 		if (err) throw err;
 		stories.forEach(function(story) {
 			story.commentsLength = story.comments.length;
@@ -147,7 +179,6 @@ app.post('/news', function(req, res) {
 			});
 		});	
 	})
-
 })
 app.get('/news/:id', function(req, res) {
 	Story.findOne({"_id": req.params.id}).populate('author comments').exec(function(err, story) {
@@ -289,9 +320,16 @@ app.post('/news/:id/comment', function(req, res) {
 			if (err) throw err;
 			User.findOneAndUpdate({'_id': req.session.passport.user}, {$addToSet: {comments: {'_id': data._id }}}, function(err, user) {
 				if (err) throw err;
-				res.redirect('/news/' + encodeURIComponent(req.params.id));
+				// once the comment is made to the story, the original poster gets a notification
+					// find the poster's id
+					// add one notification to the poster
+					// click the button and it sends a request back to the server to delete
+						// need to create a get method and ajax post
+				User.findOneAndUpdate({'_id': story._id}, {$inc : { notifications: 1 }}).exec(function(err, data) {
+					if (err) throw err;
+					res.redirect('/news/' + encodeURIComponent(req.params.id));
+				});
 			});
-
 		});
 	});
 });
@@ -360,18 +398,24 @@ app.get('/logout', function(req, res) {
 	res.redirect('/');
 });
 app.get('/profile', ensureAuthenticated, function(req, res) {
-	User.findOne({"_id": req.session.passport.user}).populate('votedPosts stories').exec(function(err, user) {
+	User.findOne({"_id": req.session.passport.user}).populate('favPosts votedPosts stories').exec(function(err, user) {
 		if (err) throw err;
+		console.log(user);
 		Comment.find({"author": user._id}).populate('story').exec(function(err, comments) {
 			if (err) throw err;
-			console.log(comments);
 			res.render('profile', {user: user, comments: comments});
 		})
 	});
 });
 app.get('/profile/:id', function(req, res) {
-	User.findById({"_id": req.params.id}, function(err, user) {
-		res.render('profile', {user: user});
+	User.findById({"_id": req.params.id}).populate('favPosts votedPosts stories').exec(function(err, user) {
+		if (err) throw err;
+		console.log(user);
+		Comment.find({'author': user._id}).populate('story').exec(function(err, comments) {
+			if (err) throw err;
+			res.render('profile', {user: user, comments: comments});
+		})
+
 	});
 });
 app.get('/api', function(req, res) {
@@ -403,7 +447,7 @@ function msToTime(duration) {
 	//console.log("m:"+m);
 	var h = parseInt(m / 60);
 	//console.log("h:"+h);
-	var d = parseInt(d / 24);
+	var d = parseInt(h / 24);
 	//console.log("d:"+d);
 	if (d===0 || isNaN(d)) {
 		//console.log("No Days");

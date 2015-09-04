@@ -1,39 +1,52 @@
 include ./partials/header.jade
 
 .container
-	.row
-		.col-sm-6
+	.clearfix
+		.sm-col-12
 			if data
-				h2 Top Stories
+				h2 
+					span 
+						a(href="/") Newest Stories
+					span 
+						a(href="/news") Top Stories
+						
+				ul
 				each object in data
-					div
-						div
-							h3(class="title-heading")
-								a(href=object.link class="navy")=object.title
-								span(class="gray")=object.displayLink
-						div 
-							span Posted 
-							=object.timeAgo
-							span  by 
-								a(href="/profile/"+object.author._id class="underline")
-									=object.author.username
-						div 
-							a(href="/news/"+object._id class="underline comment-count")  
-									=object.commentsLength
-									span  Comments
-						div
-							span(class="upvote-counter")=object.upvote
+					li(class="story")
+						div(class="story-vote")
 							if isAuthenticated
 								button(class="btn btn-default upvote-add") +
-								span or 
+							span(class="upvote-counter")=object.upvote
+							if isAuthenticated
 								button(class="btn btn-default upvote-minus") -
+						div(class="story-details")
+							h3(class="title-meta")
+								a(href=object.link class="title-heading navy")=object.title
+								span(class="title-origin gray")=object.displayLink
+							div(class="story-comments") 
+								span=object.timeAgo 
+								=' '
+								a(href="/profile/"+object.author._id class="underline")=object.author.username 
+								=' '
+								a(href="/news/"+object._id class="underline comment-count")=object.commentsLength
+									span  comments
+								=' '
+								if isAuthenticated
+									a(href="/fav"+object._id class="") Favourite
+
+
+
 							
 			else
 				h2 Form Data
-				p No data available right now.
-				
-.container
-	.row
-		.col-sm-6
-			#react
-		
+				p No data available right now.	
+	// .clearfix
+	// 	.sm-col-12
+	// 		a(href="#" class="left btn button-narrow")
+	// 			<svg class="js-geomicon geomicon icon" data-icon="chevronLeft" viewBox="0 0 32 32" style="fill:currentcolor"><title>chevronLeft icon</title><path d="M20 1 L24 5 L14 16 L24 27 L20 31 L6 16 z"></path></svg>
+	// 		a(href="#" class="right btn button-narrow")
+	// 			<svg class="js-geomicon geomicon icon" data-icon="chevronRight" viewBox="0 0 32 32" style="fill:currentcolor"><title>chevronRight icon</title><path d="M12 1 L26 16 L12 31 L8 27 L18 16 L8 5 z"></path></svg>
+	// 		div(class="overflow-hidden sm-show center")
+	// 			a(href="#" class="btn btn-primary bg-gray") 1
+	// 			a(href="#" class="btn") 2
+	// 			a(href="#" class="btn") 3 			
