@@ -9,17 +9,37 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "alt": "^0.17.3",
     "bcrypt": "^0.8.5",
     "body-parser": "^1.13.3",
     "connect-ensure-login": "^0.1.1",
     "connect-flash": "^0.1.1",
     "express": "^4.13.3",
     "express-session": "^1.11.3",
+    "flux": "^2.1.1",
     "jade": "^1.11.0",
     "mongodb": "^2.0.40",
     "mongoose": "^4.1.2",
     "morgan": "^1.6.1",
     "passport": "^0.2.2",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "path": "^0.11.14",
+    "react": "^0.13.3",
+    "react-router": "^0.13.3",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "babelify": "^6.3.0",
+    "gulp": "^3.9.0",
+    "gulp-autoprefixer": "^2.3.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-cssmin": "^0.1.7",
+    "gulp-if": "^1.2.5",
+    "gulp-less": "^3.0.3",
+    "gulp-plumber": "^1.0.1",
+    "gulp-uglify": "^1.4.0",
+    "gulp-util": "^3.0.6",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.4.0"
   }
 }

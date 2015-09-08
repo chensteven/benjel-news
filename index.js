@@ -1,5 +1,6 @@
 var express = require('express'); // server
 var bodyParser = require('body-parser'); // parsing form contents
+var path = require('path'); // joining directory names
 var mongodb = require('mongodb'); // database
 var mongoose = require('mongoose'); // odm for database
 var bcrypt = require('bcrypt'); // encryption
@@ -15,9 +16,9 @@ var app = express();
 
 // app & middelware configurations
 app.set('view engine', 'jade'); // view engine, the template engine to use
-app.set('views', __dirname + '/views'); // views, the directory where the template files are located
-app.use(express.static(__dirname + '/public'));
-app.use(express.static(__dirname + '/bower_components'));
+app.set('views', path.join(__dirname, '/views')); // views, the directory where the template files are located
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'bower_components')));
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(morgan('dev')); // middleware logger for http request/reponse
@@ -26,11 +27,10 @@ app.use(session({ name: 'coco', secret: 'coco', resave: false, saveUninitialized
 app.use(passport.initialize()); // call this middleware to initialize Passport
 app.use(passport.session()); // call this to use persistent login sessions
 app.use(checkAuthenticationStatus);
-console.lo
+app.set('port', process.env.PORT || 4000); //equivalent of var port = process.env.PORT || 4000;
 
-var port = process.env.PORT || 4000;
-app.listen(port, function() {
-	console.log('Listening at ' + port);
+app.listen(app.get('port'), function() {
+	console.log('Listening at ' + app.get('port'));
 });
 mongoose.connect('mongodb://localhost/benjel');
 
@@ -93,7 +93,18 @@ var generateHash = function(password) {
 var validPassword = function(user, password) {
 	return bcrypt.compareSync(password, user.password);
 };
-
+app.get('/comments', function(req, res) {
+    Comment.find().exec(function(err, data) {
+        if (err) throw err;
+        res.json((data));
+    });
+});
+app.get('/react', function(req, res) {
+	res.render('react');
+});
+app.get('/reactComment', function(req, res) {
+	res.render('reactComment');
+});
 app.get('/', function(req, res) {
 	//console.log(req.session);
 	console.log(req.session.passport.user);
@@ -154,8 +165,9 @@ app.get('/news', function(req, res) {
 			story.timeAgo = timeHandler(story);
 			story.displayLink = displayUrl(story.link);
 		});
-		//console.log(stories);
-		res.render('news', {data: stories});
+		console.log(stories);
+		//res.render('news', {data: stories});
+		res.json((stories));
 	});	
 });
 app.post('/news', function(req, res) {
@@ -177,14 +189,13 @@ app.post('/news', function(req, res) {
 			User.findByIdAndUpdate({'_id': req.session.passport.user}, {$addToSet: {stories: data._id}}).exec(function(err, user) {
 				res.redirect('/news/' + encodeURIComponent(data._id));
 			});
-		});	
-	})
-})
+		});
+	});
+});
 app.get('/news/:id', function(req, res) {
 	Story.findOne({"_id": req.params.id}).populate('author comments').exec(function(err, story) {
 		if (err) {
 			throw err;
-			console.log("cant find document:" + err);
 		}
 		if (story) {
 			story.timeAgo = timeHandler(story);
@@ -308,6 +319,50 @@ app.post('/news/:id/downvote', function(req, res) {
 	else {
 		res.status(401).end();
 	}
+});
+app.get('/news/:id/comments', function(req, res) {
+	Comment.find({"story": req.params.id}).sort({created: 1}).populate('author').lean().exec(function(err, comments){
+		if (err) throw err;
+		comments.forEach(function(comment) {
+			comment.timeAgo = timeHandler(comment);
+			if (comment.author._id === req.session.passport.user) {
+				comment.sameAuthor = true;
+			}
+		});
+		console.log(comments);
+		res.json(comments);
+	});
+});
+app.post('/news/:id/comments', function(req, res) {
+	console.log(req.body);
+	var comment = new Comment();
+	comment.author = req.session.passport.user;
+	comment.content = req.body.comment;
+	comment.story = req.params.id;
+	comment.save(function(err, data) {
+		if (err) throw err;
+		Story.findOneAndUpdate({'_id': req.params.id}, {$addToSet: {comments: {'_id': data._id}}}, function(err, story) {
+			if (err) throw err;
+			User.findOneAndUpdate({'_id': req.session.passport.user}, {$addToSet: {comments: {'_id': data._id }}}, function(err, originalUser) {
+				if (err) throw err;
+				// once the comment is made to the story, the original poster gets a notification
+					// find the poster's id
+					// add one notification to the poster
+					// click the button and it sends a request back to the server to delete
+						// need to create a get method and ajax post
+				User.findOneAndUpdate({'_id': story._id}, {$inc : { notifications: 1 }}).exec(function(err, user) {
+					if (err) throw err;
+					//res.redirect('/news/' + encodeURIComponent(req.params.id));
+					Comment.findOne({"_id": data._id}).sort({created: 1}).populate('author').lean().exec(function(err, comment){
+						if (err) throw err;
+						comment.timeAgo = timeHandler(comment);
+						console.log(comment);
+						res.json(comment);
+					});
+				});
+			});
+		});
+	});
 });
 app.post('/news/:id/comment', function(req, res) {
 	var comment = new Comment();

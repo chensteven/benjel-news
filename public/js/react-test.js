@@ -15,7 +15,7 @@
 // React.render(
 // 	<HelloMessage name="Stevo" text="Benjel News" />,
 // 	document.getElementById('react')
-// )
+// );	
 
 /*
 We are building these components:
@@ -80,6 +80,7 @@ var CommentForm = React.createClass({
 var CommentBox = React.createClass({
 	loadCommentsFromServer: function() {
 		$.ajax({
+			type: 'GET',
 			url: this.props.url,
 			dataType: 'json',
 			cache: false,
@@ -112,7 +113,7 @@ var CommentBox = React.createClass({
 	// It is a method called automatically by React when a component is rendered
 	componentDidMount: function() {
 		this.loadCommentsFromServer();
-		setInterval(this.loadCommentsFromServer, this.props.pollInterval);
+		//setInterval(this.loadCommentsFromServer, this.props.pollInterval);
 	},
 	render: function() {
 		return(
@@ -124,8 +125,9 @@ var CommentBox = React.createClass({
 		);
 	}
 });
-
+var url = window.location.pathname + "/comments";
+console.log(url);
 React.render(
-	<CommentBox url="js/comments.json" pollInterval={10000} />,
+	<CommentBox url={url} pollInterval={10000} />,
 	document.getElementById('react')	
 );

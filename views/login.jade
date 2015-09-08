@@ -1,18 +1,21 @@
 include ./partials/header.jade
 
 .container
-	.clearfix
+	.row
 	if !isAuthenticated
-		h2.p2.m2 Login Form
-		form(id="login-form" name="login-form" method="post" action="/login").sm-col-6.border.p2.m2
-			label(for="username") Username:
-			input(type="text" id="login-username" name="login-username" class="block col-12 mb1 field" placeholder="Username" pattern="[a-zA-Z0-9]+" required)
-			label(for="password") Password
-			input(type="password" id="login-password" name="login-password" class="block col-12 mb1 field" placeholder="Password" required)
-			button(type="submit" class="btn btn-primary" id="login-submit" name="login-submit") Submit
-			div 
-				a(href="/register") Need to register?
-			if message.length > 0
-				p #{message}
+		div(class="col-sm-4")
+			h2 Login Form
+			form(id="login-form" name="login-form" method="post" action="/login" class="")
+				div(class="form-group")
+					label(for="username") Username:
+					input(type="text" id="login-username" name="login-username" class="form-control" placeholder="Username" pattern="[a-zA-Z0-9]+" required)
+				div(class="form-group")
+					label(for="password") Password
+					input(type="password" id="login-password" name="login-password" class="form-control" placeholder="Password" required)
+				button(type="submit" class="btn btn-default" id="login-submit" name="login-submit") Submit
+				div 
+					a(href="/register") Need to register?
+				if message.length > 0
+					p #{message}
 	else
 		h2 You're already logged in

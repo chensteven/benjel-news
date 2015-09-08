@@ -1,4 +1,5 @@
 include ./partials/header.jade
+script(src="/js/ReactComment.js" type="text/jsx")
 
 .container
 	.row
@@ -30,41 +31,12 @@ include ./partials/header.jade
 					p=story.content
 				
 				if isAuthenticated
-					div
-						form(method="post" action="#{formAction}").sm-col-6
-	
-							textarea(class="comment-textarea field block col-12" name="comments", cols="50", rows="10" required autofocus)
-							button(name="comment-submit" class="comment-submit").btn.btn-primary Add a Comment
 				else
 					div.mt3
 						p You need an account to comment.
-				div.comments
-					h4 
-						=story.commentsLength 
-						if (story.commentsLength > 1)
-							span  Comments
-						else 
-							span  Comment
-							
-					each comment in comments
-						p=comment.content
-						p Posted by 
-							a(href="/profile/"+comment.author._id)
-								span=comment.author.username
-							span  on 
-							span=comment.timeAgo
-						if comment.sameAuthor
-							div
-								button(class="btn btn-default")
-									a(href="/comment/"+comment._id+"/edit") Edit
-								button(class="btn btn-default btn-delete-comment")
-									a(href="/comment/"+comment._id+"#") Delete
-						if isAuthenticated
-							div
-								button(class="btn btn-default reply-closed")
-									a(href="#") Reply
+				#reactComment
+
 									
 			else
 				h2 Form Data
 				p No data available right now.
-		

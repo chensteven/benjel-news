@@ -1,10 +1,9 @@
 include ./partials/header.jade
-
 .container
-	.clearfix
-		.sm-col-12
+	.row
+		.col-sm-12
 			if data
-				h2 
+				h4 
 					span 
 						a(href="/") Newest Stories
 					span 
@@ -33,10 +32,6 @@ include ./partials/header.jade
 								=' '
 								if isAuthenticated
 									a(href="/fav"+object._id class="") Favourite
-
-
-
-							
 			else
 				h2 Form Data
 				p No data available right now.	

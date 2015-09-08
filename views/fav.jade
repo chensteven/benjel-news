@@ -1,15 +1,16 @@
 include ./partials/header.jade
 .container
-	.clearfix
-		h2 Favourite Posts
-		if data.favPosts
-			each post in data.favPosts
-				div(class="post")
-					span
-						a(href="/news/"+post._id)=post.title
-						span=" "
-						span by 
-						a(href="")=post.author.username
+	.row
+		div(class="col-sm-4")
+			h2 Favourite Posts
+			if data.favPosts
+				each post in data.favPosts
+					div(class="post")
+						span
+							a(href="/news/"+post._id)=post.title
+							span=" "
+							span by 
+							a(href="")=post.author.username
 					
 					
 				
