@@ -15,7 +15,8 @@
 // React.render(
 // 	<HelloMessage name="Stevo" text="Benjel News" />,
 // 	document.getElementById('react')
-// );	
+// )
+
 
 /*
 We are building these components:
