@@ -31,10 +31,10 @@ include ./partials/header.jade
 				
 				if isAuthenticated
 					div
-						form(method="post" action="#{formAction}").sm-col-6
-	
-							textarea(class="comment-textarea field block col-12" name="comments", cols="50", rows="10" required autofocus)
-							button(name="comment-submit" class="comment-submit").btn.btn-primary Add a Comment
+						form(method="post" action="#{formAction}")
+							.form-group
+								textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)
+							button(name="comment-submit" class="comment-submit btn btn-default") Add a Comment
 				else
 					div.mt3
 						p You need an account to comment.
@@ -71,13 +71,13 @@ include ./partials/header.jade
 									button(class="btn btn-default btn-delete-comment")
 										a(href="/comment/"+comment._id+"#") Delete
 							if isAuthenticated
-								div
-									button(class="btn btn-default reply-button")
-										a(href="#") Reply
-									form(method="post" action="#{formAction}" class="reply-form").sm-col-6
-										input(type="hidden" name="parentId" value='#{comment._id}')
-										textarea(class="comment-textarea field block col-12" name="comments", cols="50", rows="10" required autofocus)
-										button(name="comment-submit" class="comment-submit").btn.btn-primary Add a Comment
+								button(class="btn btn-default reply-button")
+									a(href="#") Reply
+								form(method="post" action="#{formAction}" class="reply-form")
+									input(type="hidden" name="parentId" value='#{comment._id}')
+									.form-group
+										textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)
+									button(name="comment-submit" class="comment-submit btn btn-default") Add a Comment
 
 									
 			else

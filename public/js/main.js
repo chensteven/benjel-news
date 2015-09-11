@@ -23,7 +23,7 @@ $(document).ready(function() {
 	$('.user-notifications').click(function(event) {
 		var returnUrl = window.location.href;
 		event.preventDefault();
-		$(this).siblings('.notification-box').toggle();
+		$('.notification-box').toggle();
 		$.ajax({
 			url: '/clrnotif',
 			type: 'POST',

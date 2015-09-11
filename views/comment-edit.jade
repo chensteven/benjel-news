@@ -15,5 +15,6 @@ include ./partials/header.jade
 			div
 				p=story.content
 			form(method="post" action="#{formAction}")
-				textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)=comment.content
-				button(name="comment-submit" class="comment-submit").btn.btn-primary Save Changes
+				.form-group
+					textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)=comment.content
+				button(name="comment-submit" class="comment-submit btn btn-default") Save Changes

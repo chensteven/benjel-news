@@ -14,17 +14,12 @@ Note: I have excluded node_modules and bower_components so run your own npm inst
 *dont forget to start your mongodb
 
 
-## Upcoming features
+## Upcoming features (Updated: 09/10/15)
+- embedded comments
 
 Track features at Trello board:
 https://trello.com/b/lzNK5Wuj/benjel-news
 Note: this is still very basic and crappy. there are lots of work inc.
 
-### Next Fixes (Updated: 09/10/15)
-- embedded comments
 
-### Dev List
-- need a grunt or gulp
-- need less or sass
-- need live reload
-- need to figure out which css framework to use
+

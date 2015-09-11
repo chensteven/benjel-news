@@ -1,39 +1,52 @@
-nav(class="clearfix white bg-black")
-	div(class="sm-col")
-		a(href="/" class="btn py2") Home
-			//a(href='/api' class="") API
-		a(href="/submit" class="btn py2") Submit
-		if isAuthenticated
-			a(href="#" class="btn py2 user-notifications") Notifications 
-				if notifications
-					span (
-					span(class="notfications")=notifications.length
-					span )
+nav(class="navbar navbar-default")
+	div(class="container-fluid")
+		div(class="navbar-header")
+		div(class="collapse navbar-collapse")
+			ul(class="nav navbar-nav")
+				li
+					a(href="/" class="btn py2") Home
+					//a(href='/api' class="") API
+				li
+					a(href="/submit" class="btn py2") Submit
+				if isAuthenticated
+					li
+						a(href="#" class="btn py2 user-notifications") Notifications 
+							if notifications
+								span (
+								span(class="notfications")=notifications.length
+								span )
+							else
+								span (
+								span(class="notfications") 0
+								span )
+					li
+						a(href="/fav" class="btn py2") Favourites
+				div(class="notification-box")
+					if notifications
+						each notif in notifications
+							div.border
+								div
+									p
+										if notif.comment
+											=notif.comment.author.username
+											span  made a 
+												a(href="/news/"+notif.story._id) comment 
+												span in
+											=" "
+											span
+												a(href="/news/"+notif.story._id)=notif.story.title
+											=" "
+											span=notif.timeAgo
+										else
+											span the comment got deleted
+			ul(class="nav navbar-nav navbar-right")		
+				if !isAuthenticated
+					li
+						a(href="/login" class="btn py2") Login
+						
 				else
-					span (
-					span(class="notfications") 0
-					span )
-			div(class="notification-box").black
-				if notifications
-					each notif in notifications
-						div.border
-							div
-								p
-									=notif.comment.author.username
-									span  made a 
-										a(href="/news/"+notif.story._id) comment 
-										span in
-									=" "
-									span
-										a(href="/news/"+notif.story._id)=notif.story.title
-									=" "
-									span=notif.timeAgo
-			a(href="/fav" class="btn py2") Favourites
-	div(class="sm-col-right")		
-		if !isAuthenticated
-			a(href="/login" class="btn py2") Login
-				
-		else
-			a(href="/profile" class="btn py2") Profile
-	
-			a(href="/logout" class="btn py2") Logout
+					li
+						a(href="/profile" class="btn py2") Profile
+			
+					li
+						a(href="/logout" class="btn py2") Logout

@@ -1,24 +1,23 @@
 include ./partials/header.jade
 
 .container
-	.clearfix
-		.sm-col-12
+	.row
+		.col-sm-12
 			if data
-				h2 
-					span 
-						a(href="/") Newest Stories
-					span 
-						a(href="/news") Top Stories
+				h4
+					a(href="/") Newest Stories
+					=" "
+					a(href="/news") Top Stories
 						
 				ul
 				each object in data
 					li(class="story")
 						div(class="story-vote")
 							if isAuthenticated
-								button(class="btn btn-default upvote-add") +
+								<svg class="js-geomicon geomicon upvote-add" data-icon="triangleUp" viewBox="0 0 32 32" style="fill:currentcolor"><title>triangleUp icon</title><path d="M4 24 H28 L16 6 z"></path></svg>          
 							span(class="upvote-counter")=object.upvote
 							if isAuthenticated
-								button(class="btn btn-default upvote-minus") -
+								<svg class="js-geomicon geomicon upvote-minus" data-icon="triangleDown" viewBox="0 0 32 32" style="fill:currentcolor"><title>triangleDown icon</title><path d="M4 8 H28 L16 26 z"></path></svg>
 						div(class="story-details")
 							h3(class="title-meta")
 								a(href=object.link class="title-heading navy")=object.title

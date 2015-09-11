@@ -378,7 +378,6 @@ app.post('/news/:id/comment', function(req, res) {
 	comment.content = req.body.comments;
 	comment.story = req.params.id;
 	if (req.body.parentId) {
-		console.log('logged');
 		comment.parentComment = req.body.parentId;
 	}
 	comment.save(function(err, data) {
@@ -401,14 +400,6 @@ app.post('/news/:id/comment', function(req, res) {
 						if (err) throw err;
 						User.findOneAndUpdate({'_id': story.author}, {$addToSet : { notifications: notif._id }}).exec(function(err, userData) {
 							if (err) throw err;
-							//console.log(userData);
-							//console.log(data);
-							// if (data.parentComment) {
-							// 	Comment.findOneAndUpdate({'_id': data.parentComment}, {$addToSet : {childrenComments: {"_id": data._id}}}).exec(function(err, _comment) {
-							// 	if (err) throw err;
-							// 	console.log(_comment);
-							// 	});
-							// }
 						});
 					});
 				}

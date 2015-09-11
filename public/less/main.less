@@ -1,24 +1,27 @@
-@import "/basscss/css/basscss.min.css";
+@import "./bower_components/bootstrap/less/bootstrap.less";
+@import "variables.less";
 
-html, body {
-	font-size: 14px;
-}
 .notification-box {
-	background: white;
+	background: #f8f8f8;
 	position: absolute;
 	border: 1px solid #eceef1;
 	display: none;
+	top: 52px;
 	left: 75px;
 	width: 300px;
 	height: 200px;
+	z-index: 9999;
+	padding: 1em;
 }
 .story {
 	border: 1px solid #eceef1;
 	list-style-type: none;
-	padding: 0 0.5em;
+	padding: 1.5em;
 }
 .story-details {
 	display: inline-block;
+	margin-left: 10px;
+
 }
 .story-comments {
 	display: inline-block;
@@ -26,11 +29,16 @@ html, body {
 .story-vote {
 	display: inline-block;
 	width: 30px;
-	vertical-align: middle;
 }
 .story-favourite {
 	display: inline-block;
 	margin-left: 5px;
+}
+.upvote-counter {
+	margin-left: 12px;
+}
+.upvote-add, .upvote-minus {
+	cursor: pointer;
 }
 .title-meta {
 	
