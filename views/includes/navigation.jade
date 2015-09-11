@@ -4,7 +4,30 @@ nav(class="clearfix white bg-black")
 			//a(href='/api' class="") API
 		a(href="/submit" class="btn py2") Submit
 		if isAuthenticated
-			a(href="#" class="btn py2") Notifications
+			a(href="#" class="btn py2 user-notifications") Notifications 
+				if notifications
+					span (
+					span(class="notfications")=notifications.length
+					span )
+				else
+					span (
+					span(class="notfications") 0
+					span )
+			div(class="notification-box").black
+				if notifications
+					each notif in notifications
+						div.border
+							div
+								p
+									=notif.comment.author.username
+									span  made a 
+										a(href="/news/"+notif.story._id) comment 
+										span in
+									=" "
+									span
+										a(href="/news/"+notif.story._id)=notif.story.title
+									=" "
+									span=notif.timeAgo
 			a(href="/fav" class="btn py2") Favourites
 	div(class="sm-col-right")		
 		if !isAuthenticated

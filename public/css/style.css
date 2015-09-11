@@ -3,18 +3,34 @@
 html, body {
 	font-size: 14px;
 }
+.notification-box {
+	background: white;
+	position: absolute;
+	border: 1px solid #eceef1;
+	display: none;
+	left: 75px;
+	width: 300px;
+	height: 200px;
+}
 .story {
-	//border: 1px solid #eceef1;
+	border: 1px solid #eceef1;
 	list-style-type: none;
 	padding: 0 0.5em;
 }
 .story-details {
 	display: inline-block;
 }
+.story-comments {
+	display: inline-block;
+}
 .story-vote {
 	display: inline-block;
 	width: 30px;
 	vertical-align: middle;
+}
+.story-favourite {
+	display: inline-block;
+	margin-left: 5px;
 }
 .title-meta {
 	
@@ -60,4 +76,24 @@ html, body {
 }
 ::-webkit-validation-bubble-message {
     padding: 5em;
+}
+.pagination {
+	margin-top: 3em;
+}
+.pagination ul {
+	margin: 0 2em;
+	display: inline-block;
+	list-style: none;
+	padding-left: 0;
+}
+.pagination ul li {
+	display: inline-block;
+	padding: 0 1em;
+}
+.pagination ul li:first-child {
+	padding-left: 0;
+}
+
+.reply-form {
+	display: none;
 }

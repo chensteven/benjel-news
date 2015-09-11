@@ -26,7 +26,7 @@ app.use(session({ name: 'coco', secret: 'coco', resave: false, saveUninitialized
 app.use(passport.initialize()); // call this middleware to initialize Passport
 app.use(passport.session()); // call this to use persistent login sessions
 app.use(checkAuthenticationStatus);
-console.lo
+app.use(checkNotifications);
 
 var port = process.env.PORT || 4000;
 app.listen(port, function() {
@@ -37,6 +37,8 @@ mongoose.connect('mongodb://localhost/benjel');
 var Story = require('./models/story');
 var User = require('./models/user');
 var Comment = require('./models/comment');
+var Notification = require('./models/notification');
+
 passport.use('local-register', new LocalStrategy({passReqToCallback: true, usernameField: 'login-username', passwordField: 'login-password'}, function(req, username, password, done) {
 	User.findOne({'username': username}, function(err, user) {
 		if (err) {
@@ -93,33 +95,86 @@ var generateHash = function(password) {
 var validPassword = function(user, password) {
 	return bcrypt.compareSync(password, user.password);
 };
-
+var storyPerPage = 5;
 app.get('/', function(req, res) {
-	//console.log(req.session);
-	console.log(req.session.passport.user);
-	Story.find({}).sort({created: -1}).populate('author').lean().exec(function(err, stories) {
+	console.log(req.session);
+	Story.count({}, function(err, count) {
 		if (err) throw err;
-		stories.forEach(function(story) {
-			story.commentsLength = story.comments.length;
-			story.created = story._id.getTimestamp();
-			story.timeAgo = timeHandler(story);
-			if (story.link) {
-				story.displayLink = displayUrl(story.link);
+		var pages = Math.ceil((count / storyPerPage));
+		var page = 1;
+		Story.find({}).sort({created: -1}).populate('author').skip(storyPerPage * (page - 1)).limit(storyPerPage).lean().exec(function(err, stories) {
+			if (err) throw err;
+			stories.forEach(function(story) {
+				story.commentsLength = story.comments.length;
+				story.created = story._id.getTimestamp();
+				story.timeAgo = timeHandler(story);
+				if (story.link) {
+					story.displayLink = displayUrl(story.link);
+				}
+			});
+			if (req.session.passport.user) {
+				User.findOne({"_id": req.session.passport.user}).populate('favPosts').exec(function(err, user) {
+					if (err) throw err;
+					res.render('news', {data: stories, favPosts: user.favPosts, pages: pages, page: page});
+				});
+			}
+			else {
+					//console.log(stories);
+				res.render('news', {data: stories, pages: pages, page: page});
 			}
 		});
-		if (req.session.passport.user) {
-			User.findOne({"_id": req.session.passport.user}).populate('favPosts').exec(function(err, user) {
-				if (err) throw err;
-				console.log(user.favPosts);
-				res.render('news', {data: stories, favPosts: user.favPosts});
-			});
-		}
-		else {
-				//console.log(stories);
-			res.render('news', {data: stories});
-		}
-
 	});
+});
+app.post('/clrnotif', function(req, res) {
+	Notification.find({"user": req.session.passport.user, "read": false}).populate('story user comment').exec(function(err, notifications) {
+		if (err) {
+			res.sendStatus(400);
+			throw err;
+		}
+		notifications.forEach(function(notif) {
+			notif.read = true;
+			notif.save();
+		});
+		console.log(notifications);
+		res.json(notifications);
+	});
+});
+app.get('/page/:page', function(req, res) {
+	var _number = parseInt(req.params.page);
+	if (_number==1) {
+		res.redirect('/');	
+	}
+	if (Number.isInteger(_number)) {
+		Story.count({}, function(err, count) {
+			if (err) throw err;
+			var pages = Math.ceil((count / storyPerPage));
+			var page = Math.max(0, req.params.page);
+			Story.find({}).sort({created: -1}).populate('author').skip(storyPerPage * (page - 1)).limit(storyPerPage).lean().exec(function(err, stories) {
+				if (err) throw err;
+				stories.forEach(function(story) {
+					story.commentsLength = story.comments.length;
+					story.created = story._id.getTimestamp();
+					story.timeAgo = timeHandler(story);
+					if (story.link) {
+						story.displayLink = displayUrl(story.link);
+					}
+				});
+				if (req.session.passport.user) {
+					User.findOne({"_id": req.session.passport.user}).populate('favPosts').exec(function(err, user) {
+						if (err) throw err;
+						res.render('news', {data: stories, favPosts: user.favPosts, pages: pages, page: page});
+					});
+				}
+				else {
+						//console.log(stories);
+					res.render('news', {data: stories, pages: pages, page: page});
+				}
+			});
+		});
+	}
+	else {
+		res.render('401');
+	}
 });
 app.get('/submit', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) {
 	res.render('submit');
@@ -133,18 +188,26 @@ app.get('/fav', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) 
 			console.log(data);
 			res.render('fav', {data: data});
 		});
-	})
-
+	});
 });
 app.post('/fav/:id', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) {
 	User.findByIdAndUpdate({"_id": req.session.passport.user}, {$addToSet: {favPosts: req.params.id}}).exec(function(err, data) {
 		if (err) {
-			throw err;
 			res.sendStatus(400);
+			throw err;
 		}
 		res.sendStatus(200);
 	});
-})
+});
+app.delete('/fav/:id', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) {
+	User.findByIdAndUpdate({"_id": req.session.passport.user}, {$pull: {favPosts: req.params.id}}).exec(function(err, data) {
+		if (err) {
+			res.sendStatus(400);
+			throw err;
+		}
+		res.sendStatus(200);
+	});
+});
 app.get('/news', function(req, res) {
 	Story.find({}).sort({upvote: -1}).populate('author').lean().exec(function(err, stories) {
 		if (err) throw err;
@@ -192,7 +255,7 @@ app.get('/news/:id', function(req, res) {
 			if (story.author._id == req.session.passport.user) {
 				story.sameAuthor = true;
 			}
-			Comment.find({"story": req.params.id}).sort({created: -1}).populate('author').exec(function(err, comments) {
+			Comment.find({"story": req.params.id}).sort({created: -1}).populate('author childrenComments').exec(function(err, comments) {
 				if (err) throw err;
 				comments.forEach(function(comment) {
 					comment.timeAgo = timeHandler(comment);
@@ -314,6 +377,10 @@ app.post('/news/:id/comment', function(req, res) {
 	comment.author = req.session.passport.user;
 	comment.content = req.body.comments;
 	comment.story = req.params.id;
+	if (req.body.parentId) {
+		console.log('logged');
+		comment.parentComment = req.body.parentId;
+	}
 	comment.save(function(err, data) {
 		if (err) throw err;
 		Story.findOneAndUpdate({'_id': req.params.id}, {$addToSet: {comments: {'_id': data._id}}}, function(err, story) {
@@ -325,10 +392,27 @@ app.post('/news/:id/comment', function(req, res) {
 					// add one notification to the poster
 					// click the button and it sends a request back to the server to delete
 						// need to create a get method and ajax post
-				User.findOneAndUpdate({'_id': story._id}, {$inc : { notifications: 1 }}).exec(function(err, data) {
-					if (err) throw err;
-					res.redirect('/news/' + encodeURIComponent(req.params.id));
-				});
+				if ((story.author)!=(req.session.passport.user)){
+					var notification = new Notification();
+					notification.user = story.author;
+					notification.story = story._id;
+					notification.comment = data._id;
+					notification.save(function(err, notif) {
+						if (err) throw err;
+						User.findOneAndUpdate({'_id': story.author}, {$addToSet : { notifications: notif._id }}).exec(function(err, userData) {
+							if (err) throw err;
+							//console.log(userData);
+							//console.log(data);
+							// if (data.parentComment) {
+							// 	Comment.findOneAndUpdate({'_id': data.parentComment}, {$addToSet : {childrenComments: {"_id": data._id}}}).exec(function(err, _comment) {
+							// 	if (err) throw err;
+							// 	console.log(_comment);
+							// 	});
+							// }
+						});
+					});
+				}
+				res.redirect('/news/' + encodeURIComponent(req.params.id));
 			});
 		});
 	});
@@ -488,6 +572,25 @@ function msToTime(duration) {
 	//console.log(timeAgo);
 	return(timeAgo);
 }
+function checkNotifications(req, res, next) {
+	if (req.session.passport.user) {
+		Notification.find({"user": req.session.passport.user, "read": false}).populate('story user comment').lean().exec(function(err, notifications) {
+			if (err) {
+				throw err;
+			}
+			Notification.populate(notifications, {path: 'comment.author', model: 'User'}, function(err, data) {
+				if (err) throw err;
+				notifications.forEach(function(notif) {
+					notif.timeAgo = timeHandler(notif);
+				});
+				notifications.length = notifications.length;
+				req.session.notifications = notifications;
+				res.locals.notifications = req.session.notifications;
+			});
+		});
+	}
+	next();
+}
 function ensureAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) {
 		next();
@@ -499,8 +602,7 @@ function ensureAuthenticated(req, res, next) {
 function checkAuthenticationStatus(req, res, next) {
 	res.locals.isAuthenticated = req.isAuthenticated(); 
 	next();
-};
-
+}
 function trump(str, pattern) {
   var trumped = "";  // default return for invalid string and pattern
 

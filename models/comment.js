@@ -27,7 +27,12 @@ var commentSchema = new Schema({
 	parentComment: {
 		type: ObjectId,
 		ref: 'Comment'
-	}
+	},
+	childrenComments: [{
+		type: ObjectId,
+		ref: 'Comment',
+		default: []
+	}]
 });
 
 module.exports = mongoose.model('Comment', commentSchema);

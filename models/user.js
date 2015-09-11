@@ -40,10 +40,10 @@ var userSchema = new Schema({
 		type: ObjectId,
 		ref: 'Story'
 	}],
-	notifications: {
-		type: Number,
-		default: 0
-	}
+	notifications: [{
+		type: ObjectId,
+		ref: 'Notification'
+	}]
 });
 
 module.exports = mongoose.model('User', userSchema);

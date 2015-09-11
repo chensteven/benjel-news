@@ -20,11 +20,8 @@ Track features at Trello board:
 https://trello.com/b/lzNK5Wuj/benjel-news
 Note: this is still very basic and crappy. there are lots of work inc.
 
-### Next Fixes (08/28/15)
+### Next Fixes (Updated: 09/10/15)
 - embedded comments
-- top stories/newest stories
-- favourite posts
-- notifications when posts have comments
 
 ### Dev List
 - need a grunt or gulp

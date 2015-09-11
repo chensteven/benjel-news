@@ -1,5 +1,66 @@
 $(document).ready(function() {
-	$('.fav-add').click(function(event) {
+	var displayNotifications = function(data) {
+		data.forEach(function(notif) {
+			//comment
+			for (var commentProp in notif.comment) {
+				if (notif.comment.hasOwnProperty(commentProp)) {
+					console.log(commentProp+": "+notif.comment[commentProp]);
+				}
+			}
+			for (var storyProp in notif.story) {
+				if (notif.story.hasOwnProperty(storyProp)) {
+					console.log(storyProp+": "+notif.story[storyProp]);
+				}	
+			}
+			for (var userProp in notif.user) {
+				if (notif.user.hasOwnProperty(userProp)) {
+					console.log(userProp+": "+notif.user[userProp]);
+				}
+			}
+			console.log(notif.date);
+		});
+	};
+	$('.user-notifications').click(function(event) {
+		var returnUrl = window.location.href;
+		event.preventDefault();
+		$(this).siblings('.notification-box').toggle();
+		$.ajax({
+			url: '/clrnotif',
+			type: 'POST',
+			success: function(data) {
+				console.log(data);
+				$(this).children()[1].innerText = 0;
+				displayNotifications(data);
+				//window.location.href = returnUrl;
+			}.bind(this),
+			error: function(xhr, status, error) {
+				console.log(xhr+' '+status+' '+error);
+			}
+		});
+	});
+	$('.reply-button').click(function(event) {
+			event.preventDefault();
+			$(this).siblings('.reply-form').toggle();
+	});
+	$(".story-favourite").on('click', '.fav-remove', function(event) {
+		event.preventDefault();
+		var ajaxUrl = $(this)[0].pathname;
+		var returnUrl = window.location.href;
+		$.ajax({
+			type: 'DELETE',
+			url: ajaxUrl,
+			success: function(data) {
+				console.log('unfavourited');
+				console.log($(this));
+				$(this).removeClass('fav-remove').addClass('fav-add');
+				$(this)[0].innerText = 'Favourite';
+			}.bind(this),
+			error: function(xhr, status, error) {
+				console.log(xhr +" "+ status + " " + error);
+			}
+		});
+	});
+	$('.story-favourite').on('click', '.fav-add', function(event) {
 		event.preventDefault();
 		var ajaxUrl = $(this)[0].pathname;
 		var returnUrl = window.location.href;
@@ -8,9 +69,9 @@ $(document).ready(function() {
 			type: 'POST',
 			success: function(data) {
 				console.log('favourited');
-				console.log(data);
-				window.location.href = returnUrl;
-			},
+				$(this).removeClass('fav-add').addClass('fav-remove');
+				$(this)[0].innerText = 'Unfavourite';
+			}.bind(this),
 			error: function(xhr, status, error) {
 				console.log(xhr +" "+ status + " " + error);
 			}

@@ -31,8 +31,35 @@ include ./partials/header.jade
 								a(href="/news/"+object._id class="underline comment-count")=object.commentsLength
 									span  comments
 								=' '
+							div(class="story-favourite")
 								if isAuthenticated
-									a(href="/fav"+object._id class="") Favourite
+									if favPosts
+										- var x = 0
+										- var flag = false
+										while ((x < favPosts.length))
+											if (favPosts[x++]._id).equals(object._id)
+												- var flag = true
+										if flag
+											a(href="/fav/"+object._id class="fav-remove") Unfavourite
+										else
+											a(href="/fav/"+object._id class="fav-add") Favourite
+				div(class="pagination")
+					- var n = 1
+					if (page != 1)
+						a(href="/page/"+(page-1)) Previous
+					ul
+						while n <= pages
+							if n == page
+								li
+									a(href="/page/"+n class="underline")=n++
+							else
+								li
+									a(href="/page/"+n)=n++
+					if (page!=(pages) && pages != 0)
+						a(href="/page/"+(page+1)) Next
+
+
+					
 
 
 
