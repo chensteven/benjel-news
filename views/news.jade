@@ -4,55 +4,61 @@ div(class="container content")
 	.row
 		.col-sm-12
 			if data
-				// h5
-				// 	a(href="/") Newest Stories
-				// 	=" "
-				// 	a(href="/news") Top Stories
-						
-				ul
-				each object in data
-					li(class="story")
-						div(class="story-voting")
-							a(href="#" class="upvote-add")
-								i(class="fa fa-caret-up fa-lg")
-							a(href="#" class="upvote-minus")
-								i(class="fa fa-caret-down fa-lg")
-						div(class="story-details")
-							div(class="story-title")
-								h5(class="title-heading")
-									a(href=object.link class="")=object.title
-								span(class="title-link")=object.displayLink
-							div(class="story-meta")
-								div(class="story-points")
-									span(class="points-value")=object.upvote
-									=" "
-									if object.upvote > 1
-										span points
-									else
-										span point
-								=" "
-								span=object.timeAgo 
-								=' '
-								a(href="/profile/"+object.author._id class="underline")=object.author.username 
-								=' '
-								a(href="/news/"+object._id class="underline comment-count")=object.commentsLength
-									span  comments
-								=' '
-							div(class="story-favourite")
-								if isAuthenticated
-									if favPosts
-										- var x = 0
-										- var flag = false
-										while ((x < favPosts.length))
-											if (favPosts[x++]._id).equals(object._id)
-												- var flag = true
-										if flag
-											a(href="/fav/"+object._id class="fa fa-star fav-remove")
-												//i(class="fa fa-star fav-remove")
-										else
-											a(href="/fav/"+object._id class="fa fa-star fav-add")
+				div(class="story-sort")
+					h5
+						a(href="/") Newest Stories
+					=" / "
+					h5
+						a(href="/news") Top Stories	
+				div(class="stories")
+					ul
+						each object in data
+							li(class="story")
+								div(class="story-voting")
+									a(href="#" class="upvote-add")
+										i(class="fa fa-caret-up fa-lg")
+									a(href="#" class="upvote-minus")
+										i(class="fa fa-caret-down fa-lg")
+								div(class="story-details")
+									div(class="story-title")
+										h5(class="title-heading")
+											a(href=object.link class="")=object.title
+										span(class="title-link")=object.displayLink
+									div(class="story-meta")
+										div(class="story-points")
+											span(class="points-value")=object.upvote
 											=" "
-											span(class="add-to-fav") Add to favourites
+											if object.upvote > 1
+												span points
+											else
+												span point
+										=" "
+										span - Posted
+											=" "
+											=object.timeAgo 
+											=" "
+										span by 
+											a(href="/profile/"+object.author._id class="underline")=object.author.username
+										=' | '
+										a(href="/news/"+object._id class="underline comment-count")=object.commentsLength
+											span  comments
+										=' '
+									div(class="story-favourite")
+										if isAuthenticated
+											if favPosts
+												- var x = 0
+												- var flag = false
+												while ((x < favPosts.length))
+													if (favPosts[x++]._id).equals(object._id)
+														- var flag = true
+												if flag
+													a(href="/fav/"+object._id class="fa fa-star fav-remove")
+													=" "
+													span(class="add-to-fav")
+												else
+													a(href="/fav/"+object._id class="fa fa-star fav-add")
+													=" "
+													span(class="add-to-fav") Add to favourites
 				div(class="pagination")
 					- var n = 1
 					if (page != 1)
@@ -66,24 +72,4 @@ div(class="container content")
 								li
 									a(href="/page/"+n)=n++
 					if (page!=(pages) && pages != 0)
-						a(href="/page/"+(page+1)) Next
-
-
-					
-
-
-
-							
-			else
-				h2 Form Data
-				p No data available right now.	
-	// .clearfix
-	// 	.sm-col-12
-	// 		a(href="#" class="left btn button-narrow")
-	// 			<svg class="js-geomicon geomicon icon" data-icon="chevronLeft" viewBox="0 0 32 32" style="fill:currentcolor"><title>chevronLeft icon</title><path d="M20 1 L24 5 L14 16 L24 27 L20 31 L6 16 z"></path></svg>
-	// 		a(href="#" class="right btn button-narrow")
-	// 			<svg class="js-geomicon geomicon icon" data-icon="chevronRight" viewBox="0 0 32 32" style="fill:currentcolor"><title>chevronRight icon</title><path d="M12 1 L26 16 L12 31 L8 27 L18 16 L8 5 z"></path></svg>
-	// 		div(class="overflow-hidden sm-show center")
-	// 			a(href="#" class="btn btn-primary bg-gray") 1
-	// 			a(href="#" class="btn") 2
-	// 			a(href="#" class="btn") 3 			
+						a(href="/page/"+(page+1)) Next	

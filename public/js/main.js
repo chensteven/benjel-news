@@ -29,7 +29,7 @@ $(document).ready(function() {
 			type: 'POST',
 			success: function(data) {
 				console.log(data);
-				$(this).children()[1].innerText = 0;
+				$(this).children()[2].innerText = 0;
 				displayNotifications(data);
 				//window.location.href = returnUrl;
 			}.bind(this),
@@ -53,7 +53,7 @@ $(document).ready(function() {
 				console.log('unfavourited');
 				console.log($(this));
 				$(this).removeClass('fav-remove').addClass('fav-add');
-				$(this).siblings()[0].innerText = 'Add to favourites';
+				$(this).siblings()[0].innerHTML = '<span class="add-to-fav">Add to favourites</span>';
 			}.bind(this),
 			error: function(xhr, status, error) {
 				console.log(xhr +" "+ status + " " + error);
@@ -70,7 +70,7 @@ $(document).ready(function() {
 			success: function(data) {
 				console.log('favourited');
 				$(this).removeClass('fav-add').addClass('fav-remove');
-				$(this).siblings()[0].innerText = '';
+				$(this).siblings()[0].innerHTML = '<span class="add-to-fav"></span>';
 			}.bind(this),
 			error: function(xhr, status, error) {
 				console.log(xhr +" "+ status + " " + error);

@@ -209,17 +209,33 @@ app.delete('/fav/:id', connectEnsureLogin.ensureLoggedIn('/login'), function(req
 	});
 });
 app.get('/news', function(req, res) {
-	Story.find({}).sort({upvote: -1}).populate('author').lean().exec(function(err, stories) {
+console.log(req.session);
+	Story.count({}, function(err, count) {
 		if (err) throw err;
-		stories.forEach(function(story) {
-			story.commentsLength = story.comments.length;
-			story.created = story._id.getTimestamp();
-			story.timeAgo = timeHandler(story);
-			story.displayLink = displayUrl(story.link);
+		var pages = Math.ceil((count / storyPerPage));
+		var page = 1;
+		Story.find({}).sort({upvote: -1}).populate('author').skip(storyPerPage * (page - 1)).limit(storyPerPage).lean().exec(function(err, stories) {
+			if (err) throw err;
+			stories.forEach(function(story) {
+				story.commentsLength = story.comments.length;
+				story.created = story._id.getTimestamp();
+				story.timeAgo = timeHandler(story);
+				if (story.link) {
+					story.displayLink = displayUrl(story.link);
+				}
+			});
+			if (req.session.passport.user) {
+				User.findOne({"_id": req.session.passport.user}).populate('favPosts').exec(function(err, user) {
+					if (err) throw err;
+					res.render('news', {data: stories, favPosts: user.favPosts, pages: pages, page: page});
+				});
+			}
+			else {
+					//console.log(stories);
+				res.render('news', {data: stories, pages: pages, page: page});
+			}
 		});
-		//console.log(stories);
-		res.render('news', {data: stories});
-	});	
+	});
 });
 app.post('/news', function(req, res) {
 	var story = new Story();
@@ -244,7 +260,7 @@ app.post('/news', function(req, res) {
 	})
 })
 app.get('/news/:id', function(req, res) {
-	Story.findOne({"_id": req.params.id}).populate('author comments').exec(function(err, story) {
+	Story.findOne({"_id": req.params.id}).populate('author comments').lean().exec(function(err, story) {
 		if (err) {
 			throw err;
 			console.log("cant find document:" + err);
@@ -252,6 +268,7 @@ app.get('/news/:id', function(req, res) {
 		if (story) {
 			story.timeAgo = timeHandler(story);
 			story.commentsLength = story.comments.length;
+			story.displayLink = displayUrl(story.link);
 			if (story.author._id == req.session.passport.user) {
 				story.sameAuthor = true;
 			}
@@ -264,7 +281,16 @@ app.get('/news/:id', function(req, res) {
 					}
 				});
 				var formAction = "/news/"+req.params.id+"/comment";
-				res.render('news-single', {story: story, comments: comments, formAction: formAction});
+				if (req.session.passport.user) {
+					User.findOne({"_id": req.session.passport.user}).populate('favPosts').exec(function(err, user) {
+						if (err) throw err;
+						res.render('news-single', {story: story, comments: comments, formAction: formAction, favPosts: user.favPosts });
+					});
+				} 
+				else {
+					res.render('news-single', {story: story, comments: comments, formAction: formAction});	
+				}
+
 			});	
 		}
 		else {

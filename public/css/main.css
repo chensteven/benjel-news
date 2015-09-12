@@ -8751,8 +8751,14 @@ button.close {
     border-radius: 0px;
   }
 }
+.navbar-default {
+  background-color: #ff655a;
+}
 .nav.navbar-nav .fa.fa-star {
   font-size: 12px;
+}
+.nav.navbar-nav li a {
+  color: #121212;
 }
 .navbar-default .navbar-brand {
   color: #121212;
@@ -8764,19 +8770,35 @@ button.close {
   padding: 0;
 }
 .content {
-  background: #f6f6ef;
+  background: #f3f4f1;
 }
 .notification-box {
   background: #f8f8f8;
   position: absolute;
   border: 1px solid #eceef1;
   display: none;
-  top: 32px;
-  left: 75px;
+  top: 30px;
+  right: 0;
   width: 300px;
   height: 200px;
   z-index: 9999;
   padding: 1em;
+}
+.story-sort {
+  margin-top: 1em;
+  color: #828282;
+}
+.story-sort h5 {
+  display: inline-block;
+  font-size: 11px;
+}
+.story-sort h5 a {
+  color: #828282;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+.stories ul {
+  padding-left: 0;
 }
 .story {
   border-bottom: 1px solid #eceef1;
@@ -8795,6 +8817,7 @@ button.close {
   margin: 0;
 }
 .story .story-details .story-title .title-heading {
+  margin: 7px 0;
   font-size: 16px;
   display: inline-block;
 }
@@ -8803,7 +8826,7 @@ button.close {
 }
 .story .story-details .story-title .title-link {
   font-size: 12px;
-  padding-left: 1.25em;
+  padding-left: 1em;
   color: #828282;
   font-weight: 400;
 }
@@ -8821,14 +8844,14 @@ button.close {
 .story .story-details .story-favourite {
   font-size: 12px;
   display: inline-block;
-  margin-left: 5px;
+  margin-left: 10px;
   color: #828282;
 }
 .story .story-details .story-favourite a {
   color: #828282;
 }
 .story .story-details .story-favourite .fa.fa-star.fav-remove {
-  color: yellow;
+  color: #ff655a;
 }
 .story .story-details .story-favourite .add-to-fav {
   font-size: 10px;
@@ -8854,7 +8877,7 @@ button.close {
   -webkit-justify-content: center;
       -ms-flex-pack: center;
           justify-content: center;
-  width: 35px;
+  width: 25px;
 }
 .story-voting a {
   color: #828282;
@@ -8897,14 +8920,20 @@ button.close {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
 .story-single .story-details {
-  display: inline-block;
+  margin-left: 20px;
 }
 .story-single .story-details .story-title {
   margin: 0;
 }
 .story-single .story-details .story-title .title-heading {
+  margin: 7px 0;
   font-size: 16px;
   display: inline-block;
 }
@@ -8913,7 +8942,7 @@ button.close {
 }
 .story-single .story-details .story-title .title-link {
   font-size: 12px;
-  padding-left: 1.25em;
+  padding-left: 1em;
   color: #828282;
   font-weight: 400;
 }
@@ -8931,13 +8960,26 @@ button.close {
 .story-single .story-details .story-favourite {
   font-size: 12px;
   display: inline-block;
-  margin-left: 5px;
+  margin-left: 10px;
+  color: #828282;
 }
 .story-single .story-details .story-favourite a {
   color: #828282;
 }
 .story-single .story-details .story-favourite .fa.fa-star.fav-remove {
-  color: yellow;
+  color: #ff655a;
+}
+.story-single .story-details .story-favourite .add-to-fav {
+  font-size: 10px;
+}
+.story-box {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+.story-content {
+  margin-top: 15px;
 }
 .story-admin-edit {
   margin-top: 5px;
@@ -8954,9 +8996,16 @@ button.close {
   margin: 5px;
   padding: 10px 0;
 }
+.comments .comment-list .comment .comment-meta {
+  margin-bottom: 10px;
+  color: #828282;
+}
+.comments .comment-list .comment .comment-meta a {
+  color: #828282;
+}
 .comments .comment-list .comment .comment-content,
 .comments .comment-list .comment .comment-meta {
-  font-size: 12px;
+  font-size: 13px;
 }
 .pagination {
   margin-top: 2em;
