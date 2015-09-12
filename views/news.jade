@@ -1,28 +1,36 @@
 include ./partials/header.jade
 
-.container
+div(class="container content")
 	.row
 		.col-sm-12
 			if data
-				h4
-					a(href="/") Newest Stories
-					=" "
-					a(href="/news") Top Stories
+				// h5
+				// 	a(href="/") Newest Stories
+				// 	=" "
+				// 	a(href="/news") Top Stories
 						
 				ul
 				each object in data
 					li(class="story")
-						div(class="story-vote")
-							if isAuthenticated
-								<svg class="js-geomicon geomicon upvote-add" data-icon="triangleUp" viewBox="0 0 32 32" style="fill:currentcolor"><title>triangleUp icon</title><path d="M4 24 H28 L16 6 z"></path></svg>          
-							span(class="upvote-counter")=object.upvote
-							if isAuthenticated
-								<svg class="js-geomicon geomicon upvote-minus" data-icon="triangleDown" viewBox="0 0 32 32" style="fill:currentcolor"><title>triangleDown icon</title><path d="M4 8 H28 L16 26 z"></path></svg>
+						div(class="story-voting")
+							a(href="#" class="upvote-add")
+								i(class="fa fa-caret-up fa-lg")
+							a(href="#" class="upvote-minus")
+								i(class="fa fa-caret-down fa-lg")
 						div(class="story-details")
-							h3(class="title-meta")
-								a(href=object.link class="title-heading navy")=object.title
-								span(class="title-origin gray")=object.displayLink
-							div(class="story-comments") 
+							div(class="story-title")
+								h5(class="title-heading")
+									a(href=object.link class="")=object.title
+								span(class="title-link")=object.displayLink
+							div(class="story-meta")
+								div(class="story-points")
+									span(class="points-value")=object.upvote
+									=" "
+									if object.upvote > 1
+										span points
+									else
+										span point
+								=" "
 								span=object.timeAgo 
 								=' '
 								a(href="/profile/"+object.author._id class="underline")=object.author.username 
@@ -39,9 +47,12 @@ include ./partials/header.jade
 											if (favPosts[x++]._id).equals(object._id)
 												- var flag = true
 										if flag
-											a(href="/fav/"+object._id class="fav-remove") Unfavourite
+											a(href="/fav/"+object._id class="fa fa-star fav-remove")
+												//i(class="fa fa-star fav-remove")
 										else
-											a(href="/fav/"+object._id class="fav-add") Favourite
+											a(href="/fav/"+object._id class="fa fa-star fav-add")
+											=" "
+											span(class="add-to-fav") Add to favourites
 				div(class="pagination")
 					- var n = 1
 					if (page != 1)

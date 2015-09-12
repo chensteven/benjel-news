@@ -1,26 +1,17 @@
-nav(class="navbar navbar-default")
-	div(class="container-fluid")
+div(class="container navigation")
+	nav(class="navbar navbar-default" role="navigation")
 		div(class="navbar-header")
+			a(class="navbar-brand" href="/") Benjel News
+				//img(alt="Benjel News" src="#')
 		div(class="collapse navbar-collapse")
 			ul(class="nav navbar-nav")
 				li
-					a(href="/" class="btn py2") Home
-					//a(href='/api' class="") API
-				li
-					a(href="/submit" class="btn py2") Submit
+					a(href="/submit" class="") Submit
 				if isAuthenticated
 					li
-						a(href="#" class="btn py2 user-notifications") Notifications 
-							if notifications
-								span (
-								span(class="notfications")=notifications.length
-								span )
-							else
-								span (
-								span(class="notfications") 0
-								span )
-					li
-						a(href="/fav" class="btn py2") Favourites
+						a(href="/fav" class="") Favourites
+							=" "
+							//i(class="fa fa-star")
 				div(class="notification-box")
 					if notifications
 						each notif in notifications
@@ -42,11 +33,25 @@ nav(class="navbar navbar-default")
 			ul(class="nav navbar-nav navbar-right")		
 				if !isAuthenticated
 					li
-						a(href="/login" class="btn py2") Login
+						a(href="/login" class="") Login
 						
 				else
 					li
-						a(href="/profile" class="btn py2") Profile
-			
+						a(href="#" class=" user-notifications")
+							i(class="fa fa-inbox")
+							=" "
+							if notifications
+								span (
+								span(class="notfications")=notifications.length
+								span )
+							else
+								span (
+								span(class="notfications") 0
+								span )
 					li
-						a(href="/logout" class="btn py2") Logout
+						a(href="/profile" class="")
+							i(class="fa fa-user")
+								=" "
+								span=username			
+					li
+						a(href="/logout" class="") Logout

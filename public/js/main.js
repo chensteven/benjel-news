@@ -53,7 +53,7 @@ $(document).ready(function() {
 				console.log('unfavourited');
 				console.log($(this));
 				$(this).removeClass('fav-remove').addClass('fav-add');
-				$(this)[0].innerText = 'Favourite';
+				$(this).siblings()[0].innerText = 'Add to favourites';
 			}.bind(this),
 			error: function(xhr, status, error) {
 				console.log(xhr +" "+ status + " " + error);
@@ -70,7 +70,7 @@ $(document).ready(function() {
 			success: function(data) {
 				console.log('favourited');
 				$(this).removeClass('fav-add').addClass('fav-remove');
-				$(this)[0].innerText = 'Unfavourite';
+				$(this).siblings()[0].innerText = '';
 			}.bind(this),
 			error: function(xhr, status, error) {
 				console.log(xhr +" "+ status + " " + error);
@@ -112,16 +112,15 @@ $(document).ready(function() {
 		});
 	});
 	$('.upvote-add').click(function() {
-		var self = this;
-		var num = parseInt($(this).siblings('.upvote-counter')[0].innerText);
-		var ajaxUrl = $(this).parent().siblings().children('.story-comments').children()[2].pathname;
+		var num = parseInt($(this).parent().siblings('.story-details').children('.story-meta').children('.story-points').children()[0].innerText);
+		var ajaxUrl = $(this).parent().siblings('.story-details').children('.story-meta').children()[3].pathname;
 		$.ajax({
 			type: 'POST',
 			url: ajaxUrl+'/upvote',
 			success: function(data) {
 				num++;
-				$(self).siblings('.upvote-counter')[0].innerHTML = "<span>"+num+"</span>";
-			},
+				$(this).parent().siblings('.story-details').children('.story-meta').children('.story-points').children()[0].innerHTML = "<span>"+num+"</span>";
+			}.bind(this),
 			error: function(xhr, textStatus, error) {
 				// TODO: show error message -> need an account to vote
 				console.log(xhr+" "+textStatus+" "+error);
@@ -129,16 +128,15 @@ $(document).ready(function() {
 		});
 	});
 	$('.upvote-minus').click(function() {
-		var self = this;
-		var num = parseInt($(this).siblings('.upvote-counter')[0].innerText);
-		var ajaxUrl = $(this).parent().siblings().children('.story-comments').children()[2].pathname;
+		var num = parseInt($(this).parent().siblings('.story-details').children('.story-meta').children('.story-points').children()[0].innerText);
+		var ajaxUrl = $(this).parent().siblings('.story-details').children('.story-meta').children()[3].pathname;
 		$.ajax({
 			type: 'POST',
 			url: ajaxUrl+'/downvote',
 			success: function(data) {
 				num--;
-				$(self).siblings('.upvote-counter')[0].innerHTML = "<span>"+num+"</span>";
-			},
+				$(this).parent().siblings('.story-details').children('.story-meta').children('.story-points').children()[0].innerHTML = "<span>"+num+"</span>";
+			}.bind(this),
 			error: function(xhr, textStatus, error) {
 				console.log(xhr+" "+textStatus+" "+error);
 			}

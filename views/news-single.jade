@@ -1,86 +1,83 @@
 include ./partials/header.jade
 
-.container
-	.row
-		.col-sm-6
+div(class="container content")
+	div(class="row")
+		div(class="col-sm-12")
 			if story
-				h2 Top Stories
-				div
+				div(class="story-single")
+					div(class="story-details")
+						div(class="story-title")
+							h5(class="title-heading")
+								a(href=story.link)= story.title
+								span(class="title-link")=story.displayLink
+						div(class="story-meta")
+							div(class="story-points")
+								//span(class="points-value")=object.upvote
+								=" "
+								//if object.upvote > 1
+									span points
+								//else
+									span point
+								=" "
+								span Posted 
+									=story.timeAgo
+									=" "
+								span by 
+									a(href="/profile/"+story.author._id)
+										span=story.author.username 
+								=" "
+								a(href="/news/"+story._id class="underline comment-count")
+									=story.commentsLength
+									=" "
+									span Comments
+						if story.sameAuthor
+							div(class="story-admin-edit")
+								button(class="btn btn-default btn-xs")
+									a(href="/news/"+story._id+"/edit") Edit
+								button(class="btn btn-default btn-xs btn-delete-story")
+									a(href="/news/"+story._id+"#") Delete
+					
 					div
-						h3
-							a(href=story.link)= story.title
-					div 
-						span Posted 
-						=story.timeAgo
-						span  by 
-							a(href="/profile/"+story.author._id)
-								span=story.author.username
-					div 
-						a(href="/news/"+story._id class="underline comment-count")  
-							=story.commentsLength
-							span  Comments
-				if story.sameAuthor
-					div
-						button(class="btn btn-default")
-							a(href="/news/"+story._id+"/edit") Edit
-						button(class="btn btn-default btn-delete-story")
-							a(href="/news/"+story._id+"#") Delete
-				
-				div
-					p=story.content
-				
-				if isAuthenticated
-					div
-						form(method="post" action="#{formAction}")
-							.form-group
-								textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)
-							button(name="comment-submit" class="comment-submit btn btn-default") Add a Comment
-				else
-					div.mt3
-						p You need an account to comment.
-				div.comments
-					h4 
-						=story.commentsLength 
-						if (story.commentsLength > 1)
-							span  Comments
-						else 
-							span  Comment
-							
-					each comment in comments
-						if comment.parentComment
-							=''
-						else 
-							p=comment.content
-							p Posted by 
-								a(href="/profile/"+comment.author._id)
-									span=comment.author.username
-								span  on 
-								span=comment.timeAgo
-							if comment.childrenComments
-								each children in comment.childrenComments
-									p=children.content
-									p Posted by
-									a(href="/profile/"+children.author)
-										span=children.author
-									span  on 
-									span=children.timeAgo
-							if comment.sameAuthor
-								div
-									button(class="btn btn-default")
-										a(href="/comment/"+comment._id+"/edit") Edit
-									button(class="btn btn-default btn-delete-comment")
-										a(href="/comment/"+comment._id+"#") Delete
-							if isAuthenticated
-								button(class="btn btn-default reply-button")
-									a(href="#") Reply
-								form(method="post" action="#{formAction}" class="reply-form")
-									input(type="hidden" name="parentId" value='#{comment._id}')
-									.form-group
-										textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)
-									button(name="comment-submit" class="comment-submit btn btn-default") Add a Comment
-
-									
+						p=story.content
+		div(class="col-sm-6")
+			if isAuthenticated
+				form(method="post" action="#{formAction}")
+					.form-group
+						textarea(class="comment-textarea form-control" name="comments", cols="30", rows="5" required autofocus)
+					button(name="comment-submit" class="comment-submit btn btn-default btn-sm") Add a Comment
 			else
-				h2 Form Data
-				p No data available right now.
-		
+				p You need an account to comment.
+		div(class="col-sm-12")
+			div(class="comments")
+				h4=story.commentsLength
+					if (story.commentsLength > 1)
+						span  Comments
+					else 
+						span  Comment
+				div(class="comment-list")
+					each comment in comments
+						div(class="comment")
+							div(class="comment-content")
+								p=comment.content
+							div(class="comment-meta")
+								span Posted by 
+									a(href="/profile/"+comment.author._id)
+										span=comment.author.username
+									=" "
+									span on 
+									span=comment.timeAgo
+								div(class="story-admin-edit")
+									if comment.sameAuthor
+										button(class="btn btn-default btn-xs")
+											a(href="/comment/"+comment._id+"/edit") Edit
+										button(class="btn btn-default btn-xs btn-delete-comment")
+											a(href="/comment/"+comment._id+"#") Delete
+									if isAuthenticated
+										button(class="btn btn-default btn-xs reply-button")
+											a(href="#") Reply
+										form(method="post" action="#{formAction}" class="reply-form")
+											input(type="hidden" name="parentId" value='#{comment._id}')
+											.form-group
+												textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)
+											button(name="comment-submit" class="comment-submit btn btn-default") Add a Comment
+			

@@ -591,7 +591,12 @@ function ensureAuthenticated(req, res, next) {
 	}
 }
 function checkAuthenticationStatus(req, res, next) {
-	res.locals.isAuthenticated = req.isAuthenticated(); 
+	if (req.isAuthenticated()) {
+		User.findOne({"_id": req.session.passport.user}).exec(function(err, user) {
+			res.locals.username = user.username;
+			res.locals.isAuthenticated = req.isAuthenticated();	
+		});
+	}
 	next();
 }
 function trump(str, pattern) {
@@ -634,8 +639,7 @@ function displayUrl(_str) {
 		str = "";
 	} else {
 		str = str.replace(/.*?:\/\//g, "").replace(/^www./,'http://');
-		str = trump(str, "/");
-		str = "("+str+")";	
+		str = trump(str, "/");	
 	}
 	return str;
 };
