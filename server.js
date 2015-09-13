@@ -28,12 +28,16 @@ app.use(passport.session()); // call this to use persistent login sessions
 app.use(checkAuthenticationStatus);
 app.use(checkNotifications);
 
+var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 var port = process.env.PORT || 4000;
 app.listen(port, function() {
 	console.log('Listening at ' + port);
 });
-//mongoose.connect('mongodb://localhost/benjel');
-mongoose.connect("mongodb://chensteven:chen2sihan4@ds041571.mongolab.com:41571/heroku_6lxh0srj");
+if (env=== 'development') {
+	mongoose.connect('mongodb://localhost/benjel');	
+} else {
+	mongoose.connect("mongodb://chensteven:chen2sihan4@ds041571.mongolab.com:41571/heroku_6lxh0srj");	
+}
 
 var Story = require('./models/story');
 var User = require('./models/user');
