@@ -100,12 +100,13 @@ div(class="container content")
 													a(href="/comment/"+comment._id+"/edit") Edit
 												button(class="btn btn-default btn-xs btn-delete-comment")
 													a(href="/comment/"+comment._id+"#") Delete
-											// if isAuthenticated
-											// 	button(class="btn btn-default btn-xs reply-button")
-											// 		a(href="#") Reply
-											// 	form(method="post" action="#{formAction}" class="reply-form")
-											// 		input(type="hidden" name="parentId" value='#{comment._id}')
-											// 		.form-group
-											// 			textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)
-											// 		button(name="comment-submit" class="comment-submit btn btn-default") Add a Comment
+											if isAuthenticated
+												button(class="btn btn-default btn-xs reply-button")
+													a(href="#") Reply
+												form(method="post" action="#{formAction}" class="reply-form")
+													input(type="hidden" name="parentId" value='#{comment._id}')
+													.form-group
+														textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)
+													button(name="comment-submit" class="comment-submit btn btn-default") Add a Comment
 					
+include ./partials/footer.jade

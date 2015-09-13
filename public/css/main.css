@@ -9339,6 +9339,11 @@ footer .site-info span:hover {
   -webkit-transition: opacity 0.1s ease-in;
           transition: opacity 0.1s ease-in;
 }
+footer .site-info a {
+  font-size: 11px;
+  padding: 0 0.45em;
+  color: #374758;
+}
 .title-origin {
   margin-left: 0.25em;
   font-size: 16px;

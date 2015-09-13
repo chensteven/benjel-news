@@ -144,6 +144,9 @@ app.post('/clrnotif', function(req, res) {
 		res.json(notifications);
 	});
 });
+app.get('/bugs', function(req, res) {
+	res.render('bugs');
+});
 app.get('/page/:page', function(req, res) {
 	var _number = parseInt(req.params.page);
 	if (_number==1) {
