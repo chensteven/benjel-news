@@ -1,6 +1,17 @@
 @import "./bower_components/bootstrap/less/bootstrap.less";
 @import "./bower_components/font-awesome/less/font-awesome.less";
+@import "./bower_components/bootstrap-markdown/less/bootstrap-markdown.less";
 @import "variables.less";
+
+@primaryColour: #ff0000;
+@secondaryColour: #374758;
+@secondaryContraColour: lighten(@secondaryColour, 5%);
+@contentBgColour: #f3f4f1;
+@navLinkColour: #ffffff;
+@linkColour: #121212;
+@borderColour: #eceef1;
+@visitedColour: #b5b5b5;
+@bodySecondaryColour: #828282;
 
 .navbar {
 	margin-bottom: 0px;
@@ -11,7 +22,8 @@
 	}
 }
 .navbar-default {
-	background-color: #ff655a;
+	border: none;
+	background-color: @secondaryColour;
 }
 .nav.navbar-nav {
 	.fa.fa-star {
@@ -19,27 +31,53 @@
 	}
 	li {
 		a {
-			color: #121212;
-			//color: #ebebeb;
+			font-size: 13px;
+			color: @navLinkColour;
+			&:hover {
+				color: darken(@navLinkColour, 15%);
+			}
 		}
 	}
 }
+.navbar-right {
+	li {
+		border-right: 1px @secondaryContraColour solid;
+		&:last-child {
+			border-right: none;
+		}
+		&:first-child {
+			border-left: 1px @secondaryContraColour solid;
+		}		
+	}
+	.fa {
+		padding-right: 0.5em;
+	}
+}
+.navbar-header {
+	background-color: @secondaryColour;
+}
 .navbar-default .navbar-brand {
-  color: #121212;
-  font-size: @font-size-base;
-  font-weight: @headings-font-weight;
+	color: @navLinkColour;
+	font-size: @font-size-base;
+	font-weight: 600;
+	&:hover {
+		color: @navLinkColour;
+		background-color: @primaryColour;
+	}
 }
 .container.navigation {
 	margin-top: 20px;
 	padding: 0;
 }
 .content {
-	background: #f3f4f1;
+	background: @contentBgColour;
+	padding-top: 1em;
+	padding-bottom: 1em;
 }
 .notification-box {
-	background: #f8f8f8;
+	background: white;
 	position: absolute;
-	border: 1px solid #eceef1;
+	border: 1px solid @borderColour;
 	display: none;
 	top: 30px;
 	right: 0;
@@ -48,16 +86,49 @@
 	z-index: 9999;
 	padding: 1em;
 }
+.user-information {
+	margin: 10px 0;
+	padding-bottom: 10px;
+	border-bottom: 1px solid @borderColour;
+}
+.user-activities .col-sm-3 {
+	border-right: 1px solid @borderColour;
+	&:last-child {
+		border-right: none;
+	}
+}
 .story-sort {
-	margin-top: 1em;
-	color: #828282;
+	color: @visitedColour;
+	font-size: 12px;
 	h5 {
 		display: inline-block;
 		font-size: 11px;
 		a {
-			color: #828282;
-			font-weight: 400;
+			color: @bodySecondaryColour;
+			font-weight: 500;
 			text-transform: uppercase;
+			position: relative;
+			padding: 7px 0;
+			transition: color 0.2s ease-in;
+			text-decoration: none;
+			&:after {
+				height: 0px;
+				content: "";
+				position: absolute;
+				left: 0;
+				bottom: 0;
+				width: 100%;
+				background-color: @secondaryColour;
+				transition: height 0.3s ease-in;
+			}
+			&.active, &:hover, &:focus {
+				color: @secondaryColour;
+				transition: color 0.2s ease-in;
+				&:after {
+					height: 2px;
+					transition: height 0.3s ease-in;
+				}
+			}
 		}
 	}
 }
@@ -67,7 +138,7 @@
 	}
 }
 .story {
-	border-bottom: 1px solid #eceef1;
+	border-bottom: 1px solid @borderColour;
 	list-style-type: none;
 	padding: 10px;
 	display: flex;
@@ -81,22 +152,25 @@
 				font-size: 16px;
 				display: inline-block;
 				a {
-					color: #121212;
+					color: @linkColour;
+					&:visited {
+						color: @visitedColour;
+					}
 				}
 			}
 			.title-link {
 				font-size: 12px;
 				padding-left: 1em;
-				color: #828282;
+				color: @visitedColour;
 				font-weight: 400;
 			}
 		}
 		.story-meta {
 			display: inline-block;
 			font-size: 12px;
-			color: #828282;
+			color: @bodySecondaryColour;
 			a { 
-				color: #828282;
+				color: @bodySecondaryColour;
 			}
 			.story-points {
 				display: inline-block;
@@ -106,12 +180,21 @@
 			font-size: 12px;
 			display: inline-block;
 			margin-left: 10px;
-			color: #828282;
+			color: @bodySecondaryColour;
 			a {
-				color: #828282;
+				color: @bodySecondaryColour;
+				&:hover {
+					text-decoration: none;
+					color: @primaryColour;
+					transition: font-size 0.1s ease-in;
+					font-size: 14px;
+				}
+				&:active, &:focus {
+					text-decoration: none;
+				}
 			}
 			.fa.fa-star.fav-remove {
-				color: #ff655a;
+				color: @primaryColour;
 			}
 			.add-to-fav {
 				font-size: 10px;
@@ -127,7 +210,16 @@
 	justify-content: center;
 	width: 25px;
 	a {
-		color: #828282;
+		color: @bodySecondaryColour;
+		&:hover {
+			text-decoration: none;
+			color: @primaryColour;
+			transition: font-size 0.1s ease-in;
+			font-size: 24px;
+		}
+		&:active, &:focus {
+			text-decoration: none;
+		}
 	}
 	.upvote-add, .upvote-minus {
 		display: flex;
@@ -142,8 +234,8 @@
 	}
 }
 .story-single {
-	padding: 10px 0;
 	display: flex;
+	padding-bottom: 10px;
 	flex-direction: column;
 	.story-details {
 		margin-left: 20px;
@@ -154,22 +246,25 @@
 				font-size: 16px;
 				display: inline-block;
 				a {
-					color: #121212;
+					color: @linkColour;
+					&:visited {
+						color: @visitedColour;
+					}
 				}
 			}
 			.title-link {
 				font-size: 12px;
 				padding-left: 1em;
-				color: #828282;
+				color: @visitedColour;
 				font-weight: 400;
 			}
 		}
 		.story-meta {
 			display: inline-block;
 			font-size: 12px;
-			color: #828282;
+			color: @bodySecondaryColour;
 			a { 
-				color: #828282;
+				color: @bodySecondaryColour;
 			}
 			.story-points {
 				display: inline-block;
@@ -179,12 +274,21 @@
 			font-size: 12px;
 			display: inline-block;
 			margin-left: 10px;
-			color: #828282;
+			color: @bodySecondaryColour;
 			a {
-				color: #828282;
+				color: @bodySecondaryColour;
+				&:hover {
+					text-decoration: none;
+					color: @primaryColour;
+					transition: font-size 0.1s ease-in;
+					font-size: 14px;
+				}
+				&:active, &:focus {
+					text-decoration: none;
+				}
 			}
 			.fa.fa-star.fav-remove {
-				color: #ff655a;
+				color: @primaryColour;
 			}
 			.add-to-fav {
 				font-size: 10px;
@@ -196,64 +300,95 @@
 	display: flex;
 }
 .story-content {
-	margin-top: 15px;
+	margin-top: 10px;
+	white-space: pre-wrap; 
 }
 .story-admin-edit {
 	margin-top: 5px;
+	a {
+		color: @primaryColour;
+	}
 }
 .comments {
-	border-top: 1px solid #eceef1;
+	border-top: 1px solid @borderColour;
 	margin-top: 20px;
-	padding-top: 10px;
+	padding-top: 20px;
+	h4 {
+		margin: 0;
+	}
 	.comment-list {
-		margin-top: 25px;
+		margin-top: 15px;
 		.comment {
 			margin: 5px;
 			padding: 10px 0;
 			.comment-meta {
 				margin-bottom: 10px;
-				color: #828282;
+				color: @bodySecondaryColour;
 				a {
-					color: #828282;
+					color: @bodySecondaryColour;
 				}
 			}
 			.comment-content, .comment-meta {
 				font-size: 13px;
+				white-space: pre-wrap; 
 			}
 		}
 	}
 }
-.pagination {
-	margin-top: 2em;
-	a {
-		color: #828282;		
-	}
+.pagination-box {
+	margin-top: 1.25em;
 	ul {
-		margin: 0 1.5em;
-		display: inline-block;
-		list-style: none;
-		padding-left: 0;
 		li {
-			display: inline-block;
-			padding: 0 1em;
-			&:first-child {
-				padding-left: 0;
-			}
 			a {
-				color: #828282;
+				background-color: @contentBgColour;
+				border-color: @borderColour;
+				color: @bodySecondaryColour;		
 			}
 		}
 	}
+	.pagination > .active > a {
+		color: @navLinkColour;
+		background-color: @secondaryColour;
+		border-color: @secondaryColour;
+	}
+}
+.pagination-sm > li > a {
+	padding: 1px 7px;
 }
 .reply-form {
 	display: none;
 }
-
-.title-meta {
-	
+.form-title {
+	color: @bodySecondaryColour;
 }
-.title-heading {
-	
+.login-form {
+	margin-top: 1.5em;
+	margin-bottom: 1em;
+}
+.form-message {
+	margin: 10px 0;
+	a {
+		font-size: 11px;
+	}
+}
+footer {
+	padding: 20px 0;
+	.site-info {
+		display: flex;
+		align-items: center;
+		align-content: center;
+		justify-content: center;
+		span {
+			font-size: 11px;
+			color: @bodySecondaryColour;
+			opacity: 0.5;
+			transition: opacity 0.1s ease-in;
+			&:hover {
+				opacity: 0.9;
+				transition: opacity 0.1s ease-in;
+			}
+		}
+	}
 }
 .title-origin {
 	margin-left: 0.25em;

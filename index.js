@@ -95,7 +95,7 @@ var generateHash = function(password) {
 var validPassword = function(user, password) {
 	return bcrypt.compareSync(password, user.password);
 };
-var storyPerPage = 5;
+var storyPerPage = 10;
 app.get('/', function(req, res) {
 	console.log(req.session);
 	Story.count({}, function(err, count) {
@@ -115,12 +115,12 @@ app.get('/', function(req, res) {
 			if (req.session.passport.user) {
 				User.findOne({"_id": req.session.passport.user}).populate('favPosts').exec(function(err, user) {
 					if (err) throw err;
-					res.render('news', {data: stories, favPosts: user.favPosts, pages: pages, page: page});
+					res.render('index', {data: stories, favPosts: user.favPosts, pages: pages, page: page});
 				});
 			}
 			else {
 					//console.log(stories);
-				res.render('news', {data: stories, pages: pages, page: page});
+				res.render('index', {data: stories, pages: pages, page: page});
 			}
 		});
 	});
@@ -162,12 +162,12 @@ app.get('/page/:page', function(req, res) {
 				if (req.session.passport.user) {
 					User.findOne({"_id": req.session.passport.user}).populate('favPosts').exec(function(err, user) {
 						if (err) throw err;
-						res.render('news', {data: stories, favPosts: user.favPosts, pages: pages, page: page});
+						res.render('index', {data: stories, favPosts: user.favPosts, pages: pages, page: page});
 					});
 				}
 				else {
 						//console.log(stories);
-					res.render('news', {data: stories, pages: pages, page: page});
+					res.render('index', {data: stories, pages: pages, page: page});
 				}
 			});
 		});
@@ -176,16 +176,12 @@ app.get('/page/:page', function(req, res) {
 		res.render('401');
 	}
 });
-app.get('/submit', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) {
-	res.render('submit');
-});
 app.get('/fav', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) {
-	User.findOne({"_id": req.session.passport.user}).populate('favPosts').exec(function(err, data) {
+	User.findOne({"_id": req.session.passport.user}).populate('favPosts').lean().exec(function(err, data) {
 		if (err) throw err;
-
 		User.populate(data, {path: 'favPosts.author', model: 'User'}, function(err, data) {
 			if (err) throw err;
-			console.log(data);
+			data.favPosts.reverse();
 			res.render('fav', {data: data});
 		});
 	});
@@ -467,6 +463,9 @@ app.delete('/comment/:id', function(req, res) {
 		})
 	});
 });
+app.get('/submit', connectEnsureLogin.ensureLoggedIn('/login'), function(req, res) {
+	res.render('submit');
+});
 app.get('/register', function(req, res) {
 	if (req.isAuthenticated()) {
 		res.redirect('/');
@@ -603,6 +602,7 @@ function checkNotifications(req, res, next) {
 				notifications.length = notifications.length;
 				req.session.notifications = notifications;
 				res.locals.notifications = req.session.notifications;
+				console.log(res.locals);
 			});
 		});
 	}
@@ -617,10 +617,12 @@ function ensureAuthenticated(req, res, next) {
 	}
 }
 function checkAuthenticationStatus(req, res, next) {
+	console.log(req.isAuthenticated());
 	if (req.isAuthenticated()) {
 		User.findOne({"_id": req.session.passport.user}).exec(function(err, user) {
 			res.locals.username = user.username;
 			res.locals.isAuthenticated = req.isAuthenticated();	
+			console.log(res.locals);
 		});
 	}
 	next();

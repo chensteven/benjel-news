@@ -21,7 +21,7 @@ div(class="container navigation")
 										if notif.comment
 											=notif.comment.author.username
 											span  made a 
-												a(href="/news/"+notif.story._id) comment 
+												a(href="/news/"+notif.story._id) comment
 												span in
 											=" "
 											span
@@ -30,16 +30,15 @@ div(class="container navigation")
 											span=notif.timeAgo
 										else
 											span the comment got deleted
-			ul(class="nav navbar-nav navbar-right")		
+			ul(class="nav navbar-nav navbar-right")
 				if !isAuthenticated
 					li
-						a(href="/login" class="") Login
-						
+						a(href="/login")
+							small Login
 				else
 					li
 						a(href="#" class=" user-notifications")
 							i(class="fa fa-inbox")
-							=" "
 							if notifications
 								span (
 								span(class="notfications")=notifications.length
@@ -51,7 +50,7 @@ div(class="container navigation")
 					li
 						a(href="/profile" class="")
 							i(class="fa fa-user")
-								=" "
-								span=username			
-					li
-						a(href="/logout" class="") Logout
+							span=username
+					li 
+						a(href="/logout" class="")
+							small Logout

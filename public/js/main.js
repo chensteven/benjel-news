@@ -112,6 +112,7 @@ $(document).ready(function() {
 		});
 	});
 	$('.upvote-add').click(function() {
+		event.preventDefault();
 		var num = parseInt($(this).parent().siblings('.story-details').children('.story-meta').children('.story-points').children()[0].innerText);
 		var ajaxUrl = $(this).parent().siblings('.story-details').children('.story-meta').children()[3].pathname;
 		$.ajax({
@@ -128,6 +129,7 @@ $(document).ready(function() {
 		});
 	});
 	$('.upvote-minus').click(function() {
+		event.preventDefault();
 		var num = parseInt($(this).parent().siblings('.story-details').children('.story-meta').children('.story-points').children()[0].innerText);
 		var ajaxUrl = $(this).parent().siblings('.story-details').children('.story-meta').children()[3].pathname;
 		$.ajax({

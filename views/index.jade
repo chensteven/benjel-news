@@ -1,1 +1,79 @@
-include ./news.jade
+include ./partials/header.jade
+
+div(class="container content")
+	.row
+		.col-sm-12
+			if data
+				div(class="story-sort")
+					h5
+						a(href="/" class="active") Newest
+					=" | "
+					h5
+						a(href="/news") Top
+				div(class="stories")
+					ul
+						each object in data
+							li(class="story")
+								div(class="story-voting")
+									a(href="#" class="upvote-add")
+										i(class="fa fa-caret-up fa-lg")
+									a(href="#" class="upvote-minus")
+										i(class="fa fa-caret-down fa-lg")
+								div(class="story-details")
+									div(class="story-title")
+										h5(class="title-heading")
+											a(href=object.link class="")=object.title
+										span(class="title-link")=object.displayLink
+									div(class="story-meta")
+										div(class="story-points")
+											span(class="points-value")=object.upvote
+											=" "
+											if object.upvote > 1
+												span points
+											else
+												span point
+										=" "
+										span - Posted
+											=" "
+											=object.timeAgo 
+											=" "
+										span by 
+											a(href="/profile/"+object.author._id class="underline")=object.author.username
+										=' | '
+										a(href="/news/"+object._id class="underline comment-count")=object.commentsLength
+											span  comments
+										=' '
+									div(class="story-favourite")
+										if isAuthenticated
+											if favPosts
+												- var x = 0
+												- var flag = false
+												while ((x < favPosts.length))
+													if (favPosts[x++]._id).equals(object._id)
+														- var flag = true
+												if flag
+													a(href="/fav/"+object._id class="fa fa-star fav-remove")
+													=" "
+													span(class="add-to-fav")
+												else
+													a(href="/fav/"+object._id class="fa fa-star fav-add")
+													=" "
+													span(class="add-to-fav") Add to favourites
+				nav(class="pagination-box")
+					- var n = 1
+					ul(class="pagination pagination-sm")
+						if (page != 1)
+							li
+								a(href="/page/"+(page-1)) Previous
+						while n <= pages
+							if n == page
+								li(class="active")
+									a(href="/page/"+n class="")=n++
+							else
+								li
+									a(href="/page/"+n)=n++
+						if (page!=(pages) && pages != 0)
+							li
+								a(href="/page/"+(page+1)) Next	
+
+include ./partials/footer.jade

@@ -6,10 +6,10 @@ div(class="container content")
 			if data
 				div(class="story-sort")
 					h5
-						a(href="/") Newest Stories
-					=" / "
+						a(href="/") Newest
+					=" | "
 					h5
-						a(href="/news") Top Stories	
+						a(href="/news" class="active") Top	
 				div(class="stories")
 					ul
 						each object in data
@@ -59,17 +59,21 @@ div(class="container content")
 													a(href="/fav/"+object._id class="fa fa-star fav-add")
 													=" "
 													span(class="add-to-fav") Add to favourites
-				div(class="pagination")
+				nav(class="pagination-box")
 					- var n = 1
-					if (page != 1)
-						a(href="/page/"+(page-1)) Previous
-					ul
+					ul(class="pagination pagination-sm")
+						if (page != 1)
+							li
+								a(href="/page/"+(page-1)) Previous
 						while n <= pages
 							if n == page
-								li
-									a(href="/page/"+n class="underline")=n++
+								li(class="active")
+									a(href="/page/"+n class="")=n++
 							else
 								li
 									a(href="/page/"+n)=n++
-					if (page!=(pages) && pages != 0)
-						a(href="/page/"+(page+1)) Next	
+						if (page!=(pages) && pages != 0)
+							li
+								a(href="/page/"+(page+1)) Next	
+
+include ./partials/footer.jade

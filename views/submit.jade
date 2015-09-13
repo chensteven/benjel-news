@@ -1,19 +1,22 @@
 include ./partials/header.jade
 
-.container
-	.row
-		.col-sm-6
-			h2 Submit a story
+div(class="container content")
+	div(class="row")
+		div(class="col-sm-6")
+			h4 Submit a story
 			p Post a link or comment to start a discussion.
-			form(method="post" action="/news" id="story-form" name="story-form" class="sm-col-6")
+			form(method="post" action="/news" id="story-form" name="story-form")
 				.form-group
 					label(for="story-title").bold Title of your post:
 					input(type="text" id="story-title" name="story-title" class="story-title form-control" placeholder="Everything needs a title" required autofocus)
 					span(class="title-hint")
 				.form-group
-					h4 Enter a link or a comment:
+					h5 Enter a link
+						=" "
+						span(class="underline") and/or
+						=" a comment:"
 					span(class="link-hint") Remember to add "http" or "https" infront of your link	
-					input(type="url" id="story-link" name="story-link" class="story-link form-control" placeholder="http://www.benjels.com")			
+					input(type="url" id="story-link" name="story-link" class="story-link form-control" placeholder="http://www.benjels.com")
 				.form-group
 					textarea(id="story-comment" name="story-comment" class="story-comment form-control" placeholder="Be thoughtful.")
-				button(id="story-button" name="story-submit" class="story-button" type="submit").btn.btn-primary Post
+				button(id="story-button" name="story-submit" class="story-button btn btn-default btn-sm" type="submit") Post

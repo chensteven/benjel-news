@@ -59,48 +59,53 @@ div(class="container content")
 										a(href="/news/"+story._id+"/edit") Edit
 									button(class="btn btn-default btn-xs btn-delete-story")
 										a(href="/news/"+story._id+"#") Delete
+				if story.content
 					div(class="row")
 						div(class="story-content col-sm-10")
 							p=story.content
-			div(class="col-sm-6")
-				if isAuthenticated
-					form(method="post" action="#{formAction}")
-						.form-group
-							textarea(class="comment-textarea form-control" name="comments", cols="30", rows="5" required)
-						button(name="comment-submit" class="comment-submit btn btn-default btn-sm") Add a Comment
-				else
-					div(class="alert alert-info") You need an account to comment.
-			div(class="col-sm-12")
-				div(class="comments")
-					h4=story.commentsLength
-						if (story.commentsLength > 1)
-							span  Comments
-						else 
-							span  Comment
-					div(class="comment-list")
-						each comment in comments
-							div(class="comment")
-								div(class="comment-meta")
-									span Posted by 
-										a(href="/profile/"+comment.author._id class="underline")
-											span=comment.author.username
-										=" "
-										span on 
-										span=comment.timeAgo
-								div(class="comment-content")
-									p=comment.content
-									div(class="story-admin-edit")
-										if comment.sameAuthor
-											button(class="btn btn-default btn-xs")
-												a(href="/comment/"+comment._id+"/edit") Edit
-											button(class="btn btn-default btn-xs btn-delete-comment")
-												a(href="/comment/"+comment._id+"#") Delete
-										if isAuthenticated
-											button(class="btn btn-default btn-xs reply-button")
-												a(href="#") Reply
-											form(method="post" action="#{formAction}" class="reply-form")
-												input(type="hidden" name="parentId" value='#{comment._id}')
-												.form-group
-													textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)
-												button(name="comment-submit" class="comment-submit btn btn-default") Add a Comment
-				
+			div(class="row")
+				div(class="col-sm-6")
+					if isAuthenticated
+						form(method="post" action="#{formAction}")
+							.form-group
+								textarea(class="comment-textarea form-control" data-iconlibrary="fa" 	data-provide="markdown" name="comments", cols="30", rows="5" required)
+							button(name="comment-submit" class="comment-submit btn btn-default btn-sm") Add a Comment
+					else
+						div(class="well well-sm") You need an account to comment.
+							=" "
+							a(href="/login" class="underline" style="color: #ff655a") Please login.
+			div(class="row")
+				div(class="col-sm-12")
+					div(class="comments")
+						h4=story.commentsLength
+							if (story.commentsLength > 1)
+								span  Comments
+							else 
+								span  Comment
+						div(class="comment-list")
+							each comment in comments
+								div(class="comment")
+									div(class="comment-meta")
+										span Posted by 
+											a(href="/profile/"+comment.author._id class="underline")
+												span=comment.author.username
+											=" "
+											span on 
+											span=comment.timeAgo
+									div(class="comment-content")
+										p=comment.content
+										div(class="story-admin-edit")
+											if comment.sameAuthor
+												button(class="btn btn-default btn-xs")
+													a(href="/comment/"+comment._id+"/edit") Edit
+												button(class="btn btn-default btn-xs btn-delete-comment")
+													a(href="/comment/"+comment._id+"#") Delete
+											if isAuthenticated
+												button(class="btn btn-default btn-xs reply-button")
+													a(href="#") Reply
+												form(method="post" action="#{formAction}" class="reply-form")
+													input(type="hidden" name="parentId" value='#{comment._id}')
+													.form-group
+														textarea(class="comment-textarea form-control" name="comments", cols="50", rows="10" required autofocus)
+													button(name="comment-submit" class="comment-submit btn btn-default") Add a Comment
+					

@@ -1,48 +1,51 @@
 include ./partials/header.jade
-.container
-	h1 Profile
-	.row
-		if user
-			.col-sm-12
-				div
-					h4 Username:
-					span=user.username
-					h4 Joined Date:
-					span=user.joined
-	.row
-		if user.favPosts
-			.col-sm-3
-				div
-					h4 Favourite Posts:
-					ul
-					each story in user.favPosts
-						li
-							a(href="/news/"+story._id)=story.title
-		if user.stories
-			.col-sm-3
-				div
-					h4 Stories Posted:
-					ul
-					each story in user.stories
-						li
-							a(href="/news/"+story._id)=story.title
-		if comments
-			.col-sm-3
-				div
-					h4 Comments Posted:
-					ul
-					each comment in comments
-						li
-							a(href="/news/"+comment.story._id)=comment.story.title
-							span  - 
-							span=comment.content
-		if user.votedPosts
-			.col-sm-3
-				div
-					h4 Stories Upvoted:
-					ul
-					each voted in user.votedPosts
-						li
-							a(href="/news/"+voted._id)=voted.title
-				
-			
+div(class="container content")
+	div(class="user-profile")
+		h4 Profile
+		.row
+			if user
+				.col-sm-12
+					div(class="user-information")
+						div
+							h5 Username:
+							span=user.username
+							h5 Joined Date:
+							span=user.joined
+		.row
+			div(class="user-activities")
+				if user.favPosts
+					.col-sm-3
+						div
+							h5 Favourite Posts:
+							ul
+							each story in user.favPosts
+								li
+									a(href="/news/"+story._id)=story.title
+				if user.stories
+					.col-sm-3
+						div
+							h5 Stories Posted:
+							ul
+							each story in user.stories
+								li
+									a(href="/news/"+story._id)=story.title
+				if comments
+					.col-sm-3
+						div
+							h5 Comments Posted:
+							ul
+							each comment in comments
+								li
+									a(href="/news/"+comment.story._id)=comment.story.title
+									span  - 
+									span=comment.content
+				if user.votedPosts
+					.col-sm-3
+						div
+							h5 Stories Upvoted:
+							ul
+							each voted in user.votedPosts
+								li
+									a(href="/news/"+voted._id)=voted.title
+						
+					
