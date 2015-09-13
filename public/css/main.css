@@ -8907,7 +8907,7 @@ button.close {
 }
 .navbar-default {
   border: none;
-  background-color: #ff0000;
+  background-color: #374758;
 }
 .nav.navbar-nav .fa.fa-star {
   font-size: 12px;
@@ -8932,7 +8932,7 @@ button.close {
   padding-right: 0.5em;
 }
 .navbar-header {
-  background-color: #374758;
+  background-color: #ff0000;
 }
 .navbar-default .navbar-brand {
   color: #ffffff;
