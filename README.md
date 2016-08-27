@@ -1,5 +1,11 @@
-# benjel-news
-A Hacker News/Reddit alike app for the Benjels!!!!
+# Benjel News
+This is a Hacker News/Reddit alike app :)
+
+## Demo
+
+https://desolate-peak-9716.herokuapp.com/
+
+It's not really a demo because I'm actually using it.
 
 ## Installation
 
