@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^0.8.5",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.13.3",
     "connect-ensure-login": "^0.1.1",
     "connect-flash": "^0.1.1",
@@ -19,6 +19,8 @@
     "mongodb": "^2.0.40",
     "mongoose": "^4.1.2",
     "morgan": "^1.6.1",
+    "nodemon": "^1.18.11",
+    "package.json": "^2.0.1",
     "passport": "^0.2.2",
     "passport-local": "^1.0.0"
   },
@@ -26,7 +28,7 @@
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^3.0.1",
     "gulp-concat": "^2.6.0",
-    "gulp-cssmin": "^0.1.7",
+    "gulp-cssmin": "^0.2.0",
     "gulp-less": "^3.0.3"
   }
 }
