@@ -2,7 +2,7 @@ var express = require('express'); // server
 var bodyParser = require('body-parser'); // parsing form contents
 var mongodb = require('mongodb'); // database
 var mongoose = require('mongoose'); // odm for database
-var bcrypt = require('bcrypt'); // encryption
+var bcrypt = require('bcryptjs'); // encryption
 var flash = require('connect-flash'); // error messages
 var morgan  = require('morgan'); // console logger
 var session = require('express-session'); // session for express
@@ -28,11 +28,16 @@ app.use(passport.session()); // call this to use persistent login sessions
 app.use(checkAuthenticationStatus);
 app.use(checkNotifications);
 
+var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 var port = process.env.PORT || 4000;
 app.listen(port, function() {
 	console.log('Listening at ' + port);
 });
-mongoose.connect('mongodb://localhost/benjel');
+if (env=== 'development') {
+	mongoose.connect('mongodb://localhost/benjel');	
+} else {
+	mongoose.connect("mongodb://chensteven:chen2sihan4@ds041571.mongolab.com:41571/heroku_6lxh0srj");	
+}
 
 var Story = require('./models/story');
 var User = require('./models/user');
@@ -138,6 +143,9 @@ app.post('/clrnotif', function(req, res) {
 		console.log(notifications);
 		res.json(notifications);
 	});
+});
+app.get('/bugs', function(req, res) {
+	res.render('bugs');
 });
 app.get('/page/:page', function(req, res) {
 	var _number = parseInt(req.params.page);
