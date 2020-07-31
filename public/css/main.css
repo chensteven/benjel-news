@@ -8932,7 +8932,7 @@ button.close {
   padding-right: 0.5em;
 }
 .navbar-header {
-  background-color: #374758;
+  background-color: #ff0000;
 }
 .navbar-default .navbar-brand {
   color: #ffffff;
@@ -9338,6 +9338,11 @@ footer .site-info span:hover {
   opacity: 0.9;
   -webkit-transition: opacity 0.1s ease-in;
           transition: opacity 0.1s ease-in;
+}
+footer .site-info a {
+  font-size: 11px;
+  padding: 0 0.45em;
+  color: #374758;
 }
 .title-origin {
   margin-left: 0.25em;

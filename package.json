@@ -2,19 +2,27 @@
   "name": "hackernews",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "bower install"
+  },
+  "engines": {
+    "node": "0.12.x",
+    "npm": "2.13.x"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.13.3",
+    "bower": "^1.5.2",
     "connect-ensure-login": "^0.1.1",
     "connect-flash": "^0.1.1",
     "express": "^4.13.3",
     "express-session": "^1.11.3",
+    "gulp": "^3.9.0",
     "jade": "^1.11.0",
     "mongodb": "^2.0.40",
     "mongoose": "^4.1.2",
@@ -25,7 +33,6 @@
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
-    "gulp": "^3.9.0",
     "gulp-autoprefixer": "^3.0.1",
     "gulp-concat": "^2.6.0",
     "gulp-cssmin": "^0.2.0",
